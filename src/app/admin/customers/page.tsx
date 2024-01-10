@@ -1,7 +1,8 @@
 import ResourceNotFound from '@/components/no-resource';
-import { Customers } from '@/components/Customers';
+import  Customers from '@/components/Customers';
 import Pagination from '@/components/Pagination';
 import { Metadata } from 'next';
+import {fetchCustomers} from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Customers',
@@ -21,16 +22,17 @@ const linkAndLabels: {
   mainText: 'Looks like there are no registered customers in the system at the moment.',
 };
 
-export default function Page() {
+export default async function Page() {
+  const customers = await fetchCustomers();
   return (
     <>
-      {1 < 0 ? (
-        <Customers />
+      {customers.length > 0 ? (
+        <Customers people={customers} />
       ) : (
         <ResourceNotFound linkAndLabel={linkAndLabels} />
       )}
 
-      {1 < 0 ? (
+      {customers.length > 4 ? (
         <div className="mt-10">
           <Pagination />
         </div>

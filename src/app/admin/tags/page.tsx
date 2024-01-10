@@ -10,10 +10,10 @@ export const metadata : Metadata = {
 };
 
 const linkAndLabels : {href : string, label : string, mainTitle : string, mainText : string} = {
-  href : '/admin/customers/new',
-  label : 'add customer',
-  mainTitle : 'Oops! No Customers Found',
-  mainText : `Looks like there are no registered customers in the system at the moment.`
+  href : '/admin/tags/new',
+  label : 'add tag',
+  mainTitle : 'Oops! No Tags Found',
+  mainText : `Looks like there are no tags in the system at the moment.`
 }
 
 export default function Page() {

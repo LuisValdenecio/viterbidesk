@@ -5,23 +5,36 @@ import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { ArrowUpIcon } from '@heroicons/react/20/solid';
 
-const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Customers', href: '/admin/customers' },
-  { name: 'Tickering', href: '/admin/customers/tickering' },
-  { name: 'Settings', href: '/admin/customers/settings' },
-];
+interface Tab {
+  name : string;
+  href : string;
+}
+
+interface BtnAndLink {
+  buttonLabel : string; 
+  link : {
+    label : string, 
+    url : string
+  };
+}
+
+interface MainTitle {
+  title : string;
+}
+
+type TabArray = Tab[];
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-export function SectionHeading() {
+const SectionHeading: React.FC<{tabs : TabArray, btnAndLink : BtnAndLink, mainTitle : MainTitle}> = ({tabs, btnAndLink, mainTitle}) => {
   const pathname = usePathname();
   return (
     <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
       <div className="md:flex md:items-center md:justify-between">
         <h3 className="text-base font-semibold leading-6 text-gray-900">
-          Customers
+          {mainTitle.title}
         </h3>
         <div className="mt-3 flex md:absolute md:right-0 md:top-3 md:mt-0">
           <button
@@ -32,14 +45,14 @@ export function SectionHeading() {
               className="-ml-0.5 h-5 w-5 text-gray-400"
               aria-hidden="true"
             />
-            customers.cvs
+            {btnAndLink.buttonLabel}
           </button>
 
           <Link
-            href="/admin/customers/new"
+            href={btnAndLink.link.url}
             className="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Add Customer
+            {btnAndLink.link.label}
           </Link>
         </div>
       </div>
@@ -82,3 +95,5 @@ export function SectionHeading() {
     </div>
   );
 }
+
+export default SectionHeading;

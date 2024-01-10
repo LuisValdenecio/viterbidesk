@@ -1,6 +1,6 @@
-import ResourceNotFound from '@/components/no-resource';
 import { Customers } from '@/components/Customers';
 import Pagination from '@/components/Pagination';
+import ResourceNotFound from '@/components/no-resource';
 import { Metadata } from 'next';
 
 export const metadata : Metadata = {
@@ -10,10 +10,10 @@ export const metadata : Metadata = {
 };
 
 const linkAndLabels : {href : string, label : string, mainTitle : string, mainText : string} = {
-  href : '/admin/customers/new',
-  label : 'add customer',
-  mainTitle : 'Oops! No Customers Found',
-  mainText : `Looks like there are no registered customers in the system at the moment.`
+  href : '/admin/agents/new',
+  label : 'add agent',
+  mainTitle : 'Oops! No Agents Found',
+  mainText : `Looks like there are no registered agents in the system at the moment.`
 }
 
 export default function Page() {

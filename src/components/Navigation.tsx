@@ -246,8 +246,8 @@ export const navigation: Array<NavGroup> = [
     title: 'Resources',
     links: [
       { title: 'Customers', href: '/admin/customers' },
-      { title: 'Conversations', href: '/conversations' },
-      { title: 'Messages', href: '/messages' },
+      { title: 'Agents', href: '/admin/agents' },
+      { title: 'Tags', href: '/admin/tags' },
       { title: 'Groups', href: '/groups' },
       { title: 'Attachments', href: '/attachments' },
     ],

@@ -3,7 +3,6 @@ import glob from 'fast-glob';
 import { Providers } from '@/app/providers';
 import { Layout } from '@/components/Layout';
 
-
 import '@/styles/tailwind.css';
 import { type Metadata } from 'next';
 import { type Section } from '@/components/SectionProvider';

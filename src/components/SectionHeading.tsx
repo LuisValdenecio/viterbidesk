@@ -6,20 +6,20 @@ import clsx from 'clsx';
 import { ArrowUpIcon } from '@heroicons/react/20/solid';
 
 interface Tab {
-  name : string;
-  href : string;
+  name: string;
+  href: string;
 }
 
 interface BtnAndLink {
-  buttonLabel : string; 
-  link : {
-    label : string, 
-    url : string
+  buttonLabel: string;
+  link: {
+    label: string;
+    url: string;
   };
 }
 
 interface MainTitle {
-  title : string;
+  title: string;
 }
 
 type TabArray = Tab[];
@@ -28,7 +28,11 @@ function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-const SectionHeading: React.FC<{tabs : TabArray, btnAndLink : BtnAndLink, mainTitle : MainTitle}> = ({tabs, btnAndLink, mainTitle}) => {
+const SectionHeading: React.FC<{
+  tabs: TabArray;
+  btnAndLink: BtnAndLink;
+  mainTitle: MainTitle;
+}> = ({ tabs, btnAndLink, mainTitle }) => {
   const pathname = usePathname();
   return (
     <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
@@ -94,6 +98,6 @@ const SectionHeading: React.FC<{tabs : TabArray, btnAndLink : BtnAndLink, mainTi
       </div>
     </div>
   );
-}
+};
 
 export default SectionHeading;

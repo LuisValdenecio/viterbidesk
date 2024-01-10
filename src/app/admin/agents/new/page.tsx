@@ -13,7 +13,7 @@ export default function Page() {
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
-           Profile Details
+            Profile Details
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
             This information will be displayed publicly so be careful what you
@@ -38,7 +38,7 @@ export default function Page() {
                 />
               </div>
             </div>
-            
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="email"
@@ -56,9 +56,6 @@ export default function Page() {
                 />
               </div>
             </div>
-
-          
-
           </div>
         </div>
 
@@ -78,9 +75,9 @@ export default function Page() {
                   <div className="flex h-6 items-center">
                     <input
                       id="push-nothing"
-                    name="push-notifications"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      name="push-notifications"
+                      type="radio"
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -91,18 +88,19 @@ export default function Page() {
                       Admin
                     </label>
                     <p className="text-gray-500">
-                        System administrators have full access to configure settings and manage all roles.
+                      System administrators have full access to configure
+                      settings and manage all roles.
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="relative flex gap-x-3">
                   <div className="flex h-6 items-center">
                     <input
                       id="push-nothing"
-                    name="push-notifications"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      name="push-notifications"
+                      type="radio"
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -121,9 +119,9 @@ export default function Page() {
                   <div className="flex h-6 items-center">
                     <input
                       id="push-nothing"
-                    name="push-notifications"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      name="push-notifications"
+                      type="radio"
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -138,10 +136,8 @@ export default function Page() {
                     </p>
                   </div>
                 </div>
-                
               </div>
             </fieldset>
-            
           </div>
         </div>
       </div>

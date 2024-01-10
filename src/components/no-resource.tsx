@@ -2,13 +2,15 @@ import { Button } from '@/components/Button';
 import { HeroPattern } from '@/components/HeroPattern';
 
 interface LinkAndLabel {
-  href : string;
-  label : string;
-  mainTitle : string;
-  mainText : string;
+  href: string;
+  label: string;
+  mainTitle: string;
+  mainText: string;
 }
 
-const ResourceNotFound : React.FC<{linkAndLabel : LinkAndLabel}> = ({linkAndLabel}) => {
+const ResourceNotFound: React.FC<{ linkAndLabel: LinkAndLabel }> = ({
+  linkAndLabel,
+}) => {
   return (
     <>
       <HeroPattern />
@@ -25,6 +27,6 @@ const ResourceNotFound : React.FC<{linkAndLabel : LinkAndLabel}> = ({linkAndLabe
       </div>
     </>
   );
-}
+};
 
 export default ResourceNotFound;

@@ -12,7 +12,7 @@ import {
 import { useMobileNavigationStore } from '@/components/MobileNavigation';
 import { MobileSearch, Search } from '@/components/Search';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { BellIcon } from '@heroicons/react/24/outline'
+import { BellIcon } from '@heroicons/react/24/outline';
 
 function TopLevelNavItem({
   href,
@@ -91,7 +91,7 @@ export const Header = forwardRef<
           <ThemeToggle />
         </div>
         <div className="hidden min-[416px]:contents">
-        <BellIcon className="h-6 w-6" aria-hidden="true" />
+          <BellIcon className="h-6 w-6" aria-hidden="true" />
         </div>
       </div>
     </motion.div>

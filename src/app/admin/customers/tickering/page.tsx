@@ -14,6 +14,7 @@
 */
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Metadata } from 'next';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Customer Tickering',
@@ -103,7 +104,7 @@ export default function Example() {
             >
               <div className="flex min-w-0 flex-1 items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <img
+                  <Image
                     className="h-10 w-10 rounded-full"
                     src={person.imageUrl}
                     alt=""

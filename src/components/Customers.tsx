@@ -3,6 +3,7 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
+import Image from 'next/image';
 
 const people = [
   {
@@ -64,7 +65,7 @@ export function Customers() {
       {people.map((person) => (
         <li key={person.email} className="flex justify-between gap-x-6 py-5">
           <div className="flex min-w-0 gap-x-4">
-            <img
+            <Image
               className="h-12 w-12 flex-none rounded-full bg-gray-50"
               src={person.imageUrl}
               alt=""

@@ -64,7 +64,7 @@ export default function Page() {
             Roles
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            We'll always let you know about important changes, but you pick what
+            We will always let you know about important changes, but you pick what
             else you want to hear about.
           </p>
 

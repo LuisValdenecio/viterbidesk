@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   createContext,
@@ -7,14 +7,14 @@ import {
   useContext,
   useEffect,
   useRef,
-} from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { Dialog, Transition } from '@headlessui/react'
-import { motion } from 'framer-motion'
-import { create } from 'zustand'
+} from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Dialog, Transition } from '@headlessui/react';
+import { motion } from 'framer-motion';
+import { create } from 'zustand';
 
-import { Header } from '@/components/Header'
-import { Navigation } from '@/components/Navigation'
+import { Header } from '@/components/Header';
+import { Navigation } from '@/components/Navigation';
 
 function MenuIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -27,7 +27,7 @@ function MenuIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
     >
       <path d="M.5 1h9M.5 8h9M.5 4.5h9" />
     </svg>
-  )
+  );
 }
 
 function XIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -41,41 +41,41 @@ function XIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
     >
       <path d="m1.5 1 7 7M8.5 1l-7 7" />
     </svg>
-  )
+  );
 }
 
-const IsInsideMobileNavigationContext = createContext(false)
+const IsInsideMobileNavigationContext = createContext(false);
 
 function MobileNavigationDialog({
   isOpen,
   close,
 }: {
-  isOpen: boolean
-  close: () => void
+  isOpen: boolean;
+  close: () => void;
 }) {
-  let pathname = usePathname()
-  let searchParams = useSearchParams()
-  let initialPathname = useRef(pathname).current
-  let initialSearchParams = useRef(searchParams).current
+  let pathname = usePathname();
+  let searchParams = useSearchParams();
+  let initialPathname = useRef(pathname).current;
+  let initialSearchParams = useRef(searchParams).current;
 
   useEffect(() => {
     if (pathname !== initialPathname || searchParams !== initialSearchParams) {
-      close()
+      close();
     }
-  }, [pathname, searchParams, close, initialPathname, initialSearchParams])
+  }, [pathname, searchParams, close, initialPathname, initialSearchParams]);
 
   function onClickDialog(event: React.MouseEvent<HTMLDivElement>) {
     if (!(event.target instanceof HTMLElement)) {
-      return
+      return;
     }
 
-    let link = event.target.closest('a')
+    let link = event.target.closest('a');
     if (
       link &&
       link.pathname + link.search + link.hash ===
         window.location.pathname + window.location.search + window.location.hash
     ) {
-      close()
+      close();
     }
   }
 
@@ -130,29 +130,29 @@ function MobileNavigationDialog({
         </Dialog.Panel>
       </Dialog>
     </Transition.Root>
-  )
+  );
 }
 
 export function useIsInsideMobileNavigation() {
-  return useContext(IsInsideMobileNavigationContext)
+  return useContext(IsInsideMobileNavigationContext);
 }
 
 export const useMobileNavigationStore = create<{
-  isOpen: boolean
-  open: () => void
-  close: () => void
-  toggle: () => void
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
 }>()((set) => ({
   isOpen: false,
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
-}))
+}));
 
 export function MobileNavigation() {
-  let isInsideMobileNavigation = useIsInsideMobileNavigation()
-  let { isOpen, toggle, close } = useMobileNavigationStore()
-  let ToggleIcon = isOpen ? XIcon : MenuIcon
+  let isInsideMobileNavigation = useIsInsideMobileNavigation();
+  let { isOpen, toggle, close } = useMobileNavigationStore();
+  let ToggleIcon = isOpen ? XIcon : MenuIcon;
 
   return (
     <IsInsideMobileNavigationContext.Provider value={true}>
@@ -170,5 +170,5 @@ export function MobileNavigation() {
         </Suspense>
       )}
     </IsInsideMobileNavigationContext.Provider>
-  )
+  );
 }

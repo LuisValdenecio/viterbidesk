@@ -1,8 +1,8 @@
 'use client';
 
-import { Fragment } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 
 const people = [
   {
@@ -44,11 +44,18 @@ const people = [
     lastSeen: '3h ago',
     lastSeenDateTime: '2023-01-23T13:23Z',
   },
- 
-]
+  {
+    name: 'Tom Cook',
+    email: 'tom.cook@example.com',
+    role: 'Director of Product',
+    imageUrl:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    lastSeen: null,
+  },
+];
 
 function classNames(...classes: string[]): string {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
 
 export function Customers() {
@@ -57,7 +64,11 @@ export function Customers() {
       {people.map((person) => (
         <li key={person.email} className="flex justify-between gap-x-6 py-5">
           <div className="flex min-w-0 gap-x-4">
-            <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={person.imageUrl} alt="" />
+            <img
+              className="h-12 w-12 flex-none rounded-full bg-gray-50"
+              src={person.imageUrl}
+              alt=""
+            />
             <div className="min-w-0 flex-auto">
               <p className="text-sm font-semibold leading-6 text-gray-900">
                 <a href={person.href} className="hover:underline">
@@ -65,7 +76,10 @@ export function Customers() {
                 </a>
               </p>
               <p className="mt-1 flex text-xs leading-5 text-gray-500">
-                <a href={`mailto:${person.email}`} className="truncate hover:underline">
+                <a
+                  href={`mailto:${person.email}`}
+                  className="truncate hover:underline"
+                >
                   {person.email}
                 </a>
               </p>
@@ -76,7 +90,10 @@ export function Customers() {
               <p className="text-sm leading-6 text-gray-900">{person.role}</p>
               {person.lastSeen ? (
                 <p className="mt-1 text-xs leading-5 text-gray-500">
-                  Last seen <time dateTime={person.lastSeenDateTime}>{person.lastSeen}</time>
+                  Last seen{' '}
+                  <time dateTime={person.lastSeenDateTime}>
+                    {person.lastSeen}
+                  </time>
                 </p>
               ) : (
                 <div className="mt-1 flex items-center gap-x-1.5">
@@ -108,10 +125,11 @@ export function Customers() {
                         href="#"
                         className={classNames(
                           active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
+                          'block px-3 py-1 text-sm leading-6 text-gray-900',
                         )}
                       >
-                        View profile<span className="sr-only">, {person.name}</span>
+                        View profile
+                        <span className="sr-only">, {person.name}</span>
                       </a>
                     )}
                   </Menu.Item>
@@ -121,7 +139,7 @@ export function Customers() {
                         href="#"
                         className={classNames(
                           active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
+                          'block px-3 py-1 text-sm leading-6 text-gray-900',
                         )}
                       >
                         Message<span className="sr-only">, {person.name}</span>
@@ -135,5 +153,5 @@ export function Customers() {
         </li>
       ))}
     </ul>
-  )
+  );
 }

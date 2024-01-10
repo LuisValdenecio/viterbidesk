@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Customers',
   description:
-    'On this page, we’ll dive into the different attachment endpoints you can use to manage attachments programmatically.',
+    'On this page, we will dive into the different attachment endpoints you can use to manage attachments programmatically.',
 };
 
 const linkAndLabels: {
@@ -18,7 +18,7 @@ const linkAndLabels: {
   href: '/admin/customers/new',
   label: 'add customer',
   mainTitle: 'Oops! No Customers Found',
-  mainText: `Looks like there are no registered customers in the system at the moment.`,
+  mainText: 'Looks like there are no registered customers in the system at the moment.',
 };
 
 export default function Page() {

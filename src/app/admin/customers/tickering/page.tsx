@@ -108,6 +108,8 @@ export default function Example() {
                     className="h-10 w-10 rounded-full"
                     src={person.imageUrl}
                     alt=""
+                    width={28}
+                    height={28}
                   />
                 </div>
                 <div className="min-w-0 flex-1">

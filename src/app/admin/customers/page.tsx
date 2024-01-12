@@ -1,8 +1,9 @@
 import ResourceNotFound from '@/components/no-resource';
-import  Customers from '@/components/Customers';
+import Customers from '@/components/Customers';
 import Pagination from '@/components/Pagination';
 import { Metadata } from 'next';
-import {fetchCustomers} from '@/lib/data';
+import { fetchCustomers } from '@/lib/data';
+import SectionHeading from '@/components/SectionHeading';
 
 export const metadata: Metadata = {
   title: 'Customers',
@@ -19,7 +20,8 @@ const linkAndLabels: {
   href: '/admin/customers/new',
   label: 'add customer',
   mainTitle: 'Oops! No Customers Found',
-  mainText: 'Looks like there are no registered customers in the system at the moment.',
+  mainText:
+    'Looks like there are no registered customers in the system at the moment.',
 };
 
 export default async function Page() {

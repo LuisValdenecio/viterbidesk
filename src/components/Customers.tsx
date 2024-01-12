@@ -12,9 +12,9 @@ function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-const Customers : React.FC<{
-  people : Customers_data;
-}> = ({people}) => {
+const Customers: React.FC<{
+  people: Customers_data;
+}> = ({ people }) => {
   return (
     <ul role="list" className="divide-y divide-gray-100">
       {people.map((person) => (
@@ -29,7 +29,7 @@ const Customers : React.FC<{
             />
             <div className="min-w-0 flex-auto">
               <p className="text-sm font-semibold leading-6 text-gray-900">
-                <a href='/' className="hover:underline">
+                <a href="/" className="hover:underline">
                   {person.name}
                 </a>
               </p>
@@ -44,7 +44,6 @@ const Customers : React.FC<{
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-x-6">
-            
             <Menu as="div" className="relative flex-none">
               <Menu.Button className="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900">
                 <span className="sr-only">Open options</span>
@@ -95,7 +94,6 @@ const Customers : React.FC<{
       ))}
     </ul>
   );
-
 };
 
 export default Customers;

@@ -1,6 +1,7 @@
-import { createAgent } from '@/app/lib/actions';
+import { createAgent, updateAgent } from '@/app/lib/actions';
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { Metadata } from 'next';
+import { fetchAgentById } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Add Customer',
@@ -8,9 +9,13 @@ export const metadata: Metadata = {
     'On this page, we’ll dive into the different attachment endpoints you can use to manage attachments programmatically.',
 };
 
-export default function Page() {
+export default async function Page({ params }: { params: { id: string } }) {
+  const agent_id = params.id;
+  const agent = await fetchAgentById(agent_id);
+  const updateAgentWithId = updateAgent.bind(null, agent.id);
+
   return (
-    <form action={createAgent}>
+    <form action={updateAgentWithId}>
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -33,6 +38,7 @@ export default function Page() {
                 <input
                   type="text"
                   name="name"
+                  defaultValue={agent.name}
                   id="first-name"
                   autoComplete="given-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -51,6 +57,7 @@ export default function Page() {
                 <input
                   id="email"
                   name="email"
+                  defaultValue={agent.email}
                   type="email"
                   autoComplete="email"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -78,6 +85,7 @@ export default function Page() {
                       id="push-nothing"
                       name="role"
                       value="admin"
+                      defaultChecked={agent.role === 'admin'}
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />
@@ -102,6 +110,7 @@ export default function Page() {
                       id="push-nothing"
                       name="role"
                       value="staff"
+                      defaultChecked={agent.role === 'staff'}
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />
@@ -124,6 +133,7 @@ export default function Page() {
                       id="push-nothing"
                       name="role"
                       value="team-lead"
+                      defaultChecked={agent.role === 'team-lead'}
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                     />

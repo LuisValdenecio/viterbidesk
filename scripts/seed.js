@@ -12,7 +12,7 @@ async function seedCustomers(client) {
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
         image_url VARCHAR(255) NOT NULL,
-        password TEXT NOT NULL
+        password TEXT
       );
     `;
 
@@ -24,7 +24,7 @@ async function seedCustomers(client) {
         const hashedPassword = await bcrypt.hash(customer.password, 10);
         return client.sql`
         INSERT INTO customers (id, name, email, image_url, password)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.imgUrl}, ${hashedPassword})
+        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url}, ${hashedPassword})
         ON CONFLICT (id) DO NOTHING;
       `;
       }),
@@ -53,7 +53,8 @@ async function seedAgents(client) {
           name VARCHAR(255) NOT NULL,
           email VARCHAR(255) NOT NULL,
           image_url VARCHAR(255) NOT NULL,
-          role VARCHAR(255) NOT NULL
+          role VARCHAR(255) NOT NULL,
+          password TEXT
         );
       `;
 
@@ -85,7 +86,7 @@ async function seedAgents(client) {
 async function main() {
   const client = await db.connect();
 
-  //await seedCustomers(client);
+  await seedCustomers(client);
   await seedAgents(client);
 
   await client.end();

@@ -2,7 +2,7 @@ export type Customer = {
   id: string;
   name: string;
   email: string;
-  imgUrl: string;
+  image_url: string;
   password: string;
 };
 

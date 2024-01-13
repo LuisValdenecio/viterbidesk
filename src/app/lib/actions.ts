@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-const FormSchema = z.object({
+const AgentFormSchema = z.object({
   agentName: z.string().min(1, {
     message: 'Please type in your first and last name.',
   }),
@@ -18,11 +18,24 @@ const FormSchema = z.object({
   }),
 });
 
-const CreateAgent = FormSchema.omit({});
-const UpdateAgent = FormSchema.omit({});
+const CustomerFormSchema = z.object({
+  customerName: z.string().min(1, {
+    message: 'Please type in the customers name',
+  }),
+  customerEmail: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  customerImgUrl: z.string(),
+});
+
+const CreateAgent = AgentFormSchema.omit({});
+const UpdateAgent = AgentFormSchema.omit({});
+
+const CreateCustomer = CustomerFormSchema.omit({});
+const UpdateCustomer = CustomerFormSchema.omit({});
 
 // This is temporary until @types/react-dom is updated
-export type State = {
+export type StateAgent = {
   errors?: {
     agentName?: string[];
     agentEmail?: string[];
@@ -32,7 +45,51 @@ export type State = {
   message?: string | null;
 };
 
-export async function createAgent(prevState: State, formData: FormData) {
+export type StateCustomer = {
+  errors?: {
+    customerName?: string[];
+    customerEmail?: string[];
+    customerImgUrl?: string[];
+  };
+  message?: string | null;
+};
+
+export async function createCustomer(
+  prevState: StateCustomer,
+  formData: FormData,
+) {
+  const validatedFields = CreateCustomer.safeParse({
+    customerName: formData.get('name'),
+    customerEmail: formData.get('email'),
+    customerImgUrl: '/customers/steph-dietz.png',
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to register Customer.',
+    };
+  }
+
+  const { customerName, customerEmail, customerImgUrl } = validatedFields.data;
+
+  try {
+    await sql`
+        INSERT INTO customers (name, email, image_url)
+        VALUES (${customerName}, ${customerEmail}, ${customerImgUrl})
+        ON CONFLICT (id) DO NOTHING;
+    `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to register Customer.',
+    };
+  }
+
+  revalidatePath('/admin/customers');
+  redirect('/admin/customers');
+}
+
+export async function createAgent(prevState: StateAgent, formData: FormData) {
   const validatedFields = CreateAgent.safeParse({
     agentName: formData.get('name'),
     agentEmail: formData.get('email'),

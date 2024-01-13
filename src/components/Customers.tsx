@@ -22,7 +22,7 @@ const Customers: React.FC<{
           <div className="flex min-w-0 gap-x-4">
             <img
               className="h-12 w-12 flex-none rounded-full bg-gray-50"
-              src={person.imgUrl}
+              src={person.image_url}
               alt=""
               width={28}
               height={28}

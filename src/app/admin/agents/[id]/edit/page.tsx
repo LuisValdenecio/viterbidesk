@@ -2,6 +2,7 @@ import { createAgent, updateAgent } from '@/app/lib/actions';
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { Metadata } from 'next';
 import { fetchAgentById } from '@/lib/data';
+import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Add Customer',
@@ -12,6 +13,11 @@ export const metadata: Metadata = {
 export default async function Page({ params }: { params: { id: string } }) {
   const agent_id = params.id;
   const agent = await fetchAgentById(agent_id);
+
+  if (!agent) {
+    notFound();
+  }
+
   const updateAgentWithId = updateAgent.bind(null, agent.id);
 
   return (

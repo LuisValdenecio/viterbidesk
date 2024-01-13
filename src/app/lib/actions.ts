@@ -23,11 +23,17 @@ export async function createAgent(formData: FormData) {
     agentRole: formData.get('role'),
   });
 
-  await sql`
+  try {
+    await sql`
         INSERT INTO agents (name, email, image_url, role)
         VALUES (${agentName}, ${agentEmail}, ${agentImgUrl}, ${agentRole})
         ON CONFLICT (id) DO NOTHING;
     `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to Agent.',
+    };
+  }
 
   revalidatePath('/admin/agents');
   redirect('/admin/agents');
@@ -42,11 +48,17 @@ export async function updateAgent(id: string, formData: FormData) {
     agentRole: formData.get('role'),
   });
 
-  await sql`
+  try {
+    await sql`
         UPDATE agents
         SET name = ${agentName}, email = ${agentEmail}, role = ${agentRole}
         WHERE id = ${id}
     `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to update agent',
+    };
+  }
 
   revalidatePath('/admin/agents');
   redirect('/admin/agents');

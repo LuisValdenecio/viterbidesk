@@ -6,22 +6,53 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
-  agentName: z.string(),
-  agentEmail: z.string(),
+  agentName: z.string().min(1, {
+    message: 'Please type in your first and last name.',
+  }),
+  agentEmail: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
   agentImgUrl: z.string(),
-  agentRole: z.enum(['admin', 'staff', 'team-lead']),
+  agentRole: z.enum(['admin', 'staff', 'team-lead'], {
+    invalid_type_error: 'Please select a role for this agent.',
+  }),
 });
 
 const CreateAgent = FormSchema.omit({});
 const UpdateAgent = FormSchema.omit({});
 
-export async function createAgent(formData: FormData) {
-  const { agentName, agentEmail, agentImgUrl, agentRole } = CreateAgent.parse({
+// This is temporary until @types/react-dom is updated
+export type State = {
+  errors?: {
+    agentName?: string[];
+    agentEmail?: string[];
+    agentImgUrl?: string[];
+    agentRole?: string[];
+  };
+  message?: string | null;
+};
+
+export async function createAgent(prevState: State, formData: FormData) {
+  const validatedFields = CreateAgent.safeParse({
     agentName: formData.get('name'),
     agentEmail: formData.get('email'),
     agentImgUrl: '/agents/steven-tey-1.png',
     agentRole: formData.get('role'),
   });
+
+  console.log(validatedFields);
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { agentName, agentEmail, agentImgUrl, agentRole } =
+    validatedFields.data;
 
   try {
     await sql`

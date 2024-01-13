@@ -1,16 +1,25 @@
+'use client';
+
 import { createAgent } from '@/app/lib/actions';
+import { h2 } from '@/components/mdx';
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+
+//@ts-ignore
+import { useFormState } from 'react-dom';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Add Customer',
   description:
     'On this page, we’ll dive into the different attachment endpoints you can use to manage attachments programmatically.',
 };
 
 export default function Page() {
+  const initialState = { message: null, errors: {} };
+  const [state, dispatch] = useFormState(createAgent, initialState);
+
   return (
-    <form action={createAgent}>
+    <form action={dispatch}>
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -36,10 +45,22 @@ export default function Page() {
                   id="first-name"
                   autoComplete="given-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  aria-describedby="name-error"
                 />
               </div>
-            </div>
 
+              <div id="name-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.agentName &&
+                  state.errors.agentName.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                  ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-2">
               <label
                 htmlFor="email"
@@ -54,7 +75,16 @@ export default function Page() {
                   type="email"
                   autoComplete="email"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  aria-describedby="email-error"
                 />
+              </div>
+              <div id="email-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.agentEmail &&
+                  state.errors.agentEmail.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                  ))}
               </div>
             </div>
           </div>
@@ -71,6 +101,14 @@ export default function Page() {
 
           <div className="mt-5 space-y-10">
             <fieldset>
+              <div id="role-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.agentRole &&
+                  state.errors.agentRole.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                  ))}
+              </div>
               <div className="mt-6 space-y-6">
                 <div className="relative flex gap-x-3">
                   <div className="flex h-6 items-center">
@@ -80,6 +118,7 @@ export default function Page() {
                       value="admin"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      aria-describedby="role-error"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -104,6 +143,7 @@ export default function Page() {
                       value="staff"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      aria-describedby="role-error"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -126,6 +166,7 @@ export default function Page() {
                       value="team-lead"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      aria-describedby="role-error"
                     />
                   </div>
                   <div className="text-sm leading-6">

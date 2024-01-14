@@ -127,14 +127,30 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   redirect('/admin/agents');
 }
 
-export async function updateAgent(id: string, formData: FormData) {
+export async function updateAgent(
+  id: string,
+  prevState: StateAgent,
+  formData: FormData,
+) {
   // validate form using zod
-  const { agentName, agentEmail, agentImgUrl, agentRole } = UpdateAgent.parse({
+  const validatedFields = UpdateAgent.safeParse({
     agentName: formData.get('name'),
     agentEmail: formData.get('email'),
     agentImgUrl: '/agents/steven-tey-1.png',
     agentRole: formData.get('role'),
   });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { agentName, agentEmail, agentImgUrl, agentRole } =
+    validatedFields.data;
 
   try {
     await sql`

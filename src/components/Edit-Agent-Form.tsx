@@ -14,10 +14,10 @@ const metadata: Metadata = {
     'On this page, we’ll dive into the different attachment endpoints you can use to manage attachments programmatically.',
 };
 
-export default function EditForm({ agent }: { agent: Agent }) {
+export default function EditAgentForm({ agent }: { agent: Agent }) {
   const initialState = { message: null, errors: {} };
-  const updateInvoiceWithId = updateAgent.bind(null, agent.id);
-  const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
+  const updateAgentWithId = updateAgent.bind(null, agent.id);
+  const [state, dispatch] = useFormState(updateAgentWithId, initialState);
 
   return (
     <form action={dispatch}>

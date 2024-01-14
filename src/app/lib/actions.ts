@@ -191,3 +191,42 @@ export async function deleteCustomer(id: string) {
     };
   }
 }
+
+export async function updateCustomer(
+  id: string,
+  prevState: StateAgent,
+  formData: FormData,
+) {
+  // validate form using zod
+  const validatedFields = UpdateCustomer.safeParse({
+    customerName: formData.get('name'),
+    customerEmail: formData.get('email'),
+    customerImgUrl: '/agents/steven-tey-1.png',
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { customerName, customerEmail } = validatedFields.data;
+
+  try {
+    await sql`
+        UPDATE customers
+        SET name = ${customerName}, email = ${customerEmail}
+        WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to update customer',
+    };
+  }
+
+  revalidatePath('/admin/customers');
+  redirect('/admin/customers');
+}

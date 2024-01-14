@@ -8,6 +8,7 @@ import { Customer } from '@/lib/definitions';
 
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { deleteCustomer } from '@/app/lib/actions';
+import Link from 'next/link';
 
 type Customers_data = Customer[];
 
@@ -190,18 +191,19 @@ const Customers: React.FC<{
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <Link
+                          href={`/admin/customers/${person.id}/edit`}
                           className={classNames(
                             active ? 'bg-gray-50' : '',
                             'block px-3 py-1 text-sm leading-6 text-gray-900',
                           )}
                         >
-                          Message
+                          Edit Profile
                           <span className="sr-only">, {person.name}</span>
-                        </a>
+                        </Link>
                       )}
                     </Menu.Item>
+
                     <Menu.Item>
                       {({ active }) => (
                         <a

@@ -1,11 +1,10 @@
-import { updateAgent } from '@/app/lib/actions';
 import { Metadata } from 'next';
-import { fetchAgentById } from '@/lib/data';
+import { fetchCustomerById } from '@/lib/data';
 import { notFound } from 'next/navigation';
 //@ts-ignore
 import { useFormState } from 'react-dom';
-import { Agent } from '@/lib/definitions';
-import EditAgentForm from '@/components/Edit-Agent-Form';
+
+import EditCustomerForm from '@/components/Edit-Customer-Form';
 
 const metadata: Metadata = {
   title: 'Add Customer',
@@ -14,16 +13,16 @@ const metadata: Metadata = {
 };
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const agentId = params.id;
-  const agent = await fetchAgentById(agentId);
+  const customerId = params.id;
+  const customer = await fetchCustomerById(customerId);
 
-  if (!agent) {
+  if (!customer) {
     return notFound();
   }
 
   return (
     <>
-      <EditAgentForm agent={agent} />
+      <EditCustomerForm customer={customer} />
     </>
   );
 }

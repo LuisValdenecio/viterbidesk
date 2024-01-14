@@ -63,3 +63,21 @@ export async function fetchAgentById(id: string) {
     throw new Error('Failed to fetch agent.');
   }
 }
+
+export async function fetchCustomerById(id: string) {
+  noStore();
+  try {
+    const data = await sql<Customer>`
+        SELECT *
+        FROM customers
+        WHERE customers.id = ${id};
+      `;
+
+    const customers = data.rows;
+
+    return customers[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer.');
+  }
+}

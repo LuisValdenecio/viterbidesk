@@ -179,3 +179,15 @@ export async function deleteAgent(id: string) {
     };
   }
 }
+
+export async function deleteCustomer(id: string) {
+  try {
+    await sql`DELETE FROM customers WHERE id = ${id}`;
+    revalidatePath('/admin/agents');
+    return { message: 'Deleted Customer.' };
+  } catch (e) {
+    return {
+      message: 'Database Error: Failed to delete customer',
+    };
+  }
+}

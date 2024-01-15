@@ -4,6 +4,8 @@ import Pagination from '@/components/Pagination';
 import { Metadata } from 'next';
 import { fetchCustomers } from '@/lib/data';
 import SectionHeading from '@/components/SectionHeading';
+import { Suspense } from 'react';
+import { UserSkeleton } from '@/components/Skeletons';
 
 export const metadata: Metadata = {
   title: 'Customers',
@@ -51,17 +53,11 @@ export default async function Page() {
         mainTitle={{ title: 'Customers' }}
       />
       {customers.length > 0 ? (
-        <Customers people={customers} />
+        <Suspense fallback={<UserSkeleton />}>
+          <Customers />
+        </Suspense>
       ) : (
         <ResourceNotFound linkAndLabel={linkAndLabels} />
-      )}
-
-      {customers.length > 4 ? (
-        <div className="mt-10">
-          <Pagination />
-        </div>
-      ) : (
-        <div></div>
       )}
     </div>
   );

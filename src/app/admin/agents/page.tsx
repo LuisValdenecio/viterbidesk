@@ -4,6 +4,8 @@ import ResourceNotFound from '@/components/no-resource';
 import { Metadata } from 'next';
 import Agents from '@/components/Agents';
 import SectionHeading from '@/components/SectionHeading';
+import { Suspense } from 'react';
+import { UserSkeleton } from '@/components/Skeletons';
 
 export const metadata: Metadata = {
   title: 'Customers',
@@ -51,17 +53,11 @@ export default async function Page() {
         mainTitle={{ title: 'Agents' }}
       />
       {agents.length > 0 ? (
-        <Agents agents={agents} />
+        <Suspense fallback={<UserSkeleton />}>
+          <Agents />
+        </Suspense>
       ) : (
         <ResourceNotFound linkAndLabel={linkAndLabels} />
-      )}
-
-      {agents.length > 4 ? (
-        <div className="mt-10">
-          <Pagination />
-        </div>
-      ) : (
-        <div></div>
       )}
     </div>
   );

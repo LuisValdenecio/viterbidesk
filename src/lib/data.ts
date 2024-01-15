@@ -32,12 +32,12 @@ export async function fetchAgents() {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
 
-    //console.log('Fetching agent data...');
-    //await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log('Fetching agent data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const data = await sql<Agent>`SELECT * FROM agents ORDER BY name ASC;`;
 
-    //console.log('Data fetch completed after 3 seconds.');
+    console.log('Data fetch completed after 3 seconds.');
 
     return data.rows;
   } catch (error) {

@@ -43,5 +43,12 @@ export default {
       },
     },
   },
-  plugins: [typographyPlugin, headlessuiPlugin, formPlugin],
+  plugins: [
+    typographyPlugin,
+    headlessuiPlugin,
+    formPlugin,
+    require('flowbite/plugin')({
+      charts: true,
+    }),
+  ],
 } satisfies Config;

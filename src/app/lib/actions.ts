@@ -5,6 +5,9 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { AuthError } from 'next-auth';
+//import { signIn } from '../../../auth';
+
 const AgentFormSchema = z.object({
   agentName: z.string().min(1, {
     message: 'Please type in your first and last name.',
@@ -85,8 +88,8 @@ export async function createCustomer(
     };
   }
 
-  revalidatePath('/admin/customers');
-  redirect('/admin/customers');
+  revalidatePath('/dashboard/admin/customers');
+  redirect('/dashboard/admin/customers');
 }
 
 export async function createAgent(prevState: StateAgent, formData: FormData) {
@@ -123,8 +126,8 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     };
   }
 
-  revalidatePath('/admin/agents');
-  redirect('/admin/agents');
+  revalidatePath('/dashboard/admin/agents');
+  redirect('/dashboard/admin/agents');
 }
 
 export async function updateAgent(
@@ -164,8 +167,8 @@ export async function updateAgent(
     };
   }
 
-  revalidatePath('/admin/agents');
-  redirect('/admin/agents');
+  revalidatePath('/dashboard/admin/agents');
+  redirect('/dashboard/admin/agents');
 }
 
 export async function deleteAgent(id: string) {
@@ -183,7 +186,7 @@ export async function deleteAgent(id: string) {
 export async function deleteCustomer(id: string) {
   try {
     await sql`DELETE FROM customers WHERE id = ${id}`;
-    revalidatePath('/admin/agents');
+    revalidatePath('/dashboard/admin/agents');
     return { message: 'Deleted Customer.' };
   } catch (e) {
     return {
@@ -227,6 +230,27 @@ export async function updateCustomer(
     };
   }
 
-  revalidatePath('/admin/customers');
-  redirect('/admin/customers');
+  revalidatePath('/dashboard/admin/customers');
+  redirect('/dashboard/admin/customers');
 }
+
+/*
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
+  }
+}
+*/

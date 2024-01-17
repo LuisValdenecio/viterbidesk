@@ -1,5 +1,4 @@
-import { deleteAgent } from '@/app/lib/actions';
-import { deleteCustomer } from '@/app/lib/actions';
+import { deleteAgent, deleteCustomer } from '../app/lib/actions';
 
 import React, { Fragment, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';

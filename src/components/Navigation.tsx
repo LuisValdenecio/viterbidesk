@@ -234,8 +234,8 @@ export const navigation: Array<NavGroup> = [
     title: 'Guides',
     links: [
       { title: 'Introduction', href: '/' },
-      { title: 'Quickstart', href: '/quickstart' },
-      { title: 'SDKs', href: '/sdks' },
+      { title: 'Quickstart', href: '/dashboard/quickstart' },
+      { title: 'SDKs', href: '/dashboard/sdks' },
       /*
       { title: 'Authentication', href: '/authentication' },
       { title: 'Pagination', href: '/pagination' },
@@ -247,18 +247,18 @@ export const navigation: Array<NavGroup> = [
   {
     title: 'Resources',
     links: [
-      { title: 'Agents', href: '/admin/agents' },
-      { title: 'Customers', href: '/admin/customers' },
-      { title: 'Dashboard', href: '/admin' },
-      { title: 'Tags', href: '/admin/tags' },
+      { title: 'Agents', href: '/dashboard/admin/agents' },
+      { title: 'Customers', href: '/dashboard/admin/customers' },
+      { title: 'Dashboard', href: '/dashboard/admin' },
+      { title: 'Tags', href: '/dashboard/admin/tags' },
       { title: 'Groups', href: '/groups' },
-      { title: 'Attachments', href: '/attachments' },
+      { title: 'Attachments', href: '/dashboard/attachments' },
     ],
   },
 
   {
     title: 'Settings',
-    links: [{ title: 'Billing', href: '/admin/billing' }],
+    links: [{ title: 'Billing', href: '/dashboard/admin/billing' }],
   },
 ];
 
@@ -269,6 +269,7 @@ export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
         <TopLevelNavItem href="/">API</TopLevelNavItem>
         <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
         <TopLevelNavItem href="#">Support</TopLevelNavItem>
+
         {navigation.map((group, groupIndex) => (
           <NavigationGroup
             key={group.title}

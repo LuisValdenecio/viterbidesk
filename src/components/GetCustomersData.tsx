@@ -101,7 +101,7 @@ const GetCustomersData: React.FC<{
                     <Menu.Item>
                       {({ active }) => (
                         <Link
-                          href={`/admin/customers/${customer.id}/edit`}
+                          href={`/dashboard/admin/customers/${customer.id}/edit`}
                           className={classNames(
                             active ? 'bg-gray-50' : '',
                             'block px-3 py-1 text-sm leading-6 text-gray-900',

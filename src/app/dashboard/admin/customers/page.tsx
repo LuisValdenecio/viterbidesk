@@ -19,7 +19,7 @@ const linkAndLabels: {
   mainTitle: string;
   mainText: string;
 } = {
-  href: '/admin/customers/new',
+  href: '/dashboard/admin/customers/new',
   label: 'add customer',
   mainTitle: 'Oops! No Customers Found',
   mainText:
@@ -27,9 +27,9 @@ const linkAndLabels: {
 };
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Customers', href: '/admin/customers' },
-  { name: 'Tickering', href: '/admin/customers/tickering' },
-  { name: 'Settings', href: '/admin/customers/settings' },
+  { name: 'Customers', href: '/dashboard/admin/customers' },
+  { name: 'Tickering', href: '/dashboard/admin/customers/tickering' },
+  { name: 'Settings', href: '/dashboard/admin/customers/settings' },
 ];
 
 const buttonLabelAndLink: {
@@ -39,7 +39,7 @@ const buttonLabelAndLink: {
   buttonLabel: 'customers.cvs',
   link: {
     label: 'Add Customer',
-    url: '/admin/customers/new',
+    url: '/dashboard/admin/customers/new',
   },
 };
 

@@ -10,7 +10,7 @@ import { Logo } from '@/components/Logo';
 import { Navigation } from '@/components/Navigation';
 import { type Section, SectionProvider } from '@/components/SectionProvider';
 
-export function Layout({
+export function DashboardLayout({
   children,
   allSections,
 }: {

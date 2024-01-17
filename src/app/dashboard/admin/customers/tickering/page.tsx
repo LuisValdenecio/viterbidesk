@@ -24,9 +24,9 @@ export const metadata: Metadata = {
 };
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Customers', href: '/admin/customers' },
-  { name: 'Tickering', href: '/admin/customers/tickering' },
-  { name: 'Settings', href: '/admin/customers/settings' },
+  { name: 'Customers', href: '/dashboard/admin/customers' },
+  { name: 'Tickering', href: '/dashboard/admin/customers/tickering' },
+  { name: 'Settings', href: '/dashboard/admin/customers/settings' },
 ];
 
 const buttonLabelAndLink: {
@@ -36,7 +36,7 @@ const buttonLabelAndLink: {
   buttonLabel: 'customers.cvs',
   link: {
     label: 'Add Customer',
-    url: '/admin/customers/new',
+    url: '/dashboard/admin/customers/new',
   },
 };
 
@@ -46,7 +46,7 @@ const linkAndLabels: {
   mainTitle: string;
   mainText: string;
 } = {
-  href: '/admin/agents/new',
+  href: '/dashboard/admin/agents/new',
   label: 'add agent',
   mainTitle: 'Oops! No Agents Found',
   mainText:

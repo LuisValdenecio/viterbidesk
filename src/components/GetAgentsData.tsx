@@ -101,7 +101,7 @@ const GetAgentsData: React.FC<{
                     <Menu.Item>
                       {({ active }) => (
                         <Link
-                          href={`/admin/agents/${agent.id}/edit`}
+                          href={`/dashboard/admin/agents/${agent.id}/edit`}
                           className={classNames(
                             active ? 'bg-gray-50' : '',
                             'block px-3 py-1 text-sm leading-6 text-gray-900',

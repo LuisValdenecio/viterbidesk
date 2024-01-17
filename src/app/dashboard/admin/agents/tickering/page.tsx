@@ -1,9 +1,9 @@
 import SectionHeading from '@/components/SectionHeading';
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Agents', href: '/admin/agents' },
-  { name: 'Tickering', href: '/admin/agents/tickering' },
-  { name: 'Settings', href: '/admin/agents/settings' },
+  { name: 'Agents', href: '/dashboard/admin/agents' },
+  { name: 'Tickering', href: '/dashboard/admin/agents/tickering' },
+  { name: 'Settings', href: '/dashboard/admin/agents/settings' },
 ];
 
 const buttonLabelAndLink: {
@@ -13,7 +13,7 @@ const buttonLabelAndLink: {
   buttonLabel: 'agents.cvs',
   link: {
     label: 'Add Agent',
-    url: '/admin/agents/new',
+    url: '/dashboard/admin/agents/new',
   },
 };
 

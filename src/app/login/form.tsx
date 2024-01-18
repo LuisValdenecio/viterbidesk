@@ -1,10 +1,19 @@
 'use client';
 
+import { ButtonSignIn } from '@/components/button_signin';
+import {
+  ArrowRightIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/react/24/outline';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
+//@ts-ignore
+import { useFormStatus } from 'react-dom';
 
 export default function Form() {
+  const [isThereAFormError, SetFormError] = useState(false);
+
   const router = useRouter();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,6 +28,8 @@ export default function Form() {
     if (!response?.error) {
       router.push('/dashboard/admin');
       router.refresh();
+    } else {
+      SetFormError(true);
     }
   };
 
@@ -104,12 +115,21 @@ export default function Form() {
               </div>
 
               <div>
-                <button
-                  type="submit"
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Sign in
-                </button>
+                <LoginButton />
+              </div>
+              <div
+                className="flex h-8 items-end space-x-1"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {isThereAFormError && (
+                  <>
+                    <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                    <p className="text-sm text-red-500">
+                      Incorrect email or password.
+                    </p>
+                  </>
+                )}
               </div>
             </form>
 
@@ -196,5 +216,14 @@ export default function Form() {
         </div>
       </div>
     </>
+  );
+}
+
+function LoginButton() {
+  const { pending } = useFormStatus();
+  return (
+    <ButtonSignIn className="mt-4 w-full" aria-disabled={pending}>
+      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+    </ButtonSignIn>
   );
 }

@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 //@ts-ignore
 import { useFormState } from 'react-dom';
 import { Customer } from '@/lib/definitions';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 const metadata: Metadata = {
   title: 'Add Customer',
@@ -51,12 +52,20 @@ export default function EditCustomerForm({ customer }: { customer: any }) {
                 />
               </div>
 
-              <div id="name-error" aria-live="polite" aria-atomic="true">
+              <div
+                className="flex h-8 items-end space-x-1"
+                id="name-error"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {state.errors?.customerName &&
                   state.errors.customerName.map((error: string) => (
-                    <p className="mt-2 text-sm text-red-500" key={error}>
-                      {error}
-                    </p>
+                    <>
+                      <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                      <p className="mt-2 text-sm text-red-500" key={error}>
+                        {error}
+                      </p>
+                    </>
                   ))}
               </div>
             </div>
@@ -81,12 +90,20 @@ export default function EditCustomerForm({ customer }: { customer: any }) {
                   aria-describedby="email-error"
                 />
               </div>
-              <div id="email-error" aria-live="polite" aria-atomic="true">
+              <div
+                className="flex h-8 items-end space-x-1"
+                id="email-error"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {state.errors?.customerEmail &&
                   state.errors.customerEmail.map((error: string) => (
-                    <p className="mt-2 text-sm text-red-500" key={error}>
-                      {error}
-                    </p>
+                    <>
+                      <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                      <p className="mt-2 text-sm text-red-500" key={error}>
+                        {error}
+                      </p>
+                    </>
                   ))}
               </div>
             </div>

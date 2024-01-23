@@ -1,5 +1,6 @@
 'use client';
 
+import { HeroPattern } from '@/components/HeroPattern';
 import { ButtonSignIn } from '@/components/button_signin';
 import {
   ArrowRightIcon,
@@ -35,6 +36,7 @@ export default function Form() {
 
   return (
     <>
+      <HeroPattern />
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <img

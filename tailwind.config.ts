@@ -5,7 +5,10 @@ import formPlugin from '@tailwindcss/forms';
 import headlessuiPlugin from '@headlessui/tailwindcss';
 
 export default {
-  content: ['./src/**/*.{js,mjs,jsx,ts,tsx,mdx}'],
+  content: [
+    './src/**/*.{js,mjs,jsx,ts,tsx,mdx}',
+    './node_modules/flowbite/**/*.js',
+  ],
   darkMode: 'class',
   theme: {
     fontSize: {
@@ -47,8 +50,6 @@ export default {
     typographyPlugin,
     headlessuiPlugin,
     formPlugin,
-    require('flowbite/plugin')({
-      charts: true,
-    }),
+    require('flowbite/plugin'),
   ],
 } satisfies Config;

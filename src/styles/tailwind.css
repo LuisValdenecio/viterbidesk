@@ -23,3 +23,17 @@
 html {
   overflow: scroll;
 }
+
+.center-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
+
+.two-column-layout {
+  display: grid;
+  gap: 100px;
+  grid-template-columns: 1fr 4fr;
+}

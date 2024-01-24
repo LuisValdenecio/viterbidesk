@@ -31,11 +31,20 @@ const CustomerFormSchema = z.object({
   customerImgUrl: z.string(),
 });
 
+const OrganizationFormSchema = z.object({
+  organizationName: z.string().min(1, {
+    message: 'Please type in the organization name',
+  }),
+});
+
 const CreateAgent = AgentFormSchema.omit({});
 const UpdateAgent = AgentFormSchema.omit({});
 
 const CreateCustomer = CustomerFormSchema.omit({});
 const UpdateCustomer = CustomerFormSchema.omit({});
+
+const CreateOrganization = OrganizationFormSchema.omit({});
+const updateOrganization = OrganizationFormSchema.omit({});
 
 // This is temporary until @types/react-dom is updated
 export type StateAgent = {
@@ -56,6 +65,33 @@ export type StateCustomer = {
   };
   message?: string | null;
 };
+
+export async function createOrganization(
+  prevState: StateCustomer,
+  formData: FormData,
+) {
+  const validatedFields = CreateOrganization.safeParse({
+    organizationName: formData.get('name'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to register organization.',
+    };
+  }
+
+  const { organizationName } = validatedFields.data;
+
+  try {
+    // save org on the db
+  } catch (error) {
+    // catch error on saving org on the db
+  }
+
+  revalidatePath('/organizations/agents');
+  redirect('/organizations/agents');
+}
 
 export async function createCustomer(
   prevState: StateCustomer,

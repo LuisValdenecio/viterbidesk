@@ -24,7 +24,7 @@ let invitations = [];
 
 const InviteeEmailSchema = z.string().email();
 
-export default function SimpleSearch({ open, close, parentCallBack }) {
+export default function SimpleSearchAgent({ open, close, parentCallBack }) {
   const [query, setQuery] = useState('');
   const [numbOfInvitations, setInvitations] = useState(invitations.length);
   const [filteredinvitations, setFilteredInvitations] = useState(invitations);

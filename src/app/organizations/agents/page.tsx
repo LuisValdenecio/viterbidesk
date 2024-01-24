@@ -1,20 +1,8 @@
 'use client';
 
-import {
-  CheckCircleIcon,
-  PhotoIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/solid';
-import { Fragment, useRef, useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { useState } from 'react';
 import { RadioGroup } from '@headlessui/react';
-import {
-  AtSymbolIcon,
-  CheckIcon,
-  ExclamationCircleIcon,
-} from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import SimpleSearch from '@/components/SimpleSearch';
+import SimpleSearchAgent from '@/components/SimpleSearchAgent';
 import { LinkIcon } from '@heroicons/react/20/solid';
 
 const mailingLists = [
@@ -60,34 +48,31 @@ export default function Page() {
 }
 
 let nextId = 0;
-let initialEmails: { email: string }[] = [];
+let initialEmails: string[] = [];
 
 export function SocialLinks() {
   const [isEmailDialogOpen, openEmailDialog] = useState(false);
   const [isInviteesDialogOpen, openInviteesDialog] = useState(false);
+  const [emailInvitations, setEmailInvitations] = useState(initialEmails);
+
   const [selectedMailingLists, setSelectedMailingLists] = useState(
     mailingLists[0],
   );
-
-  const [emailInvitations, addEmailInvitation] = useState(initialEmails);
 
   const openDialog = () => {
     openEmailDialog(true);
   };
 
-  const handleInvitationRequest = (email: string) => {
-    addEmailInvitation([{ email: email }, ...emailInvitations]);
-    console.log(emailInvitations);
-  };
-
-  const handleOpenInviteesDialog = (signal: boolean) => {
-    openInviteesDialog(true);
+  const handleDataFromInvitationDialog = (data: string[]) => {
+    console.log(data);
+    setEmailInvitations(data);
   };
 
   return (
     <>
-      <SimpleSearch
+      <SimpleSearchAgent
         open={isEmailDialogOpen}
+        parentCallBack={handleDataFromInvitationDialog}
         close={() => openEmailDialog(false)}
       />
 
@@ -133,7 +118,7 @@ export function SocialLinks() {
                       as="span"
                       className="mt-6 text-sm font-medium text-gray-900"
                     >
-                      0
+                      invitations : {emailInvitations.length}
                     </RadioGroup.Description>
                   </span>
                 </span>

@@ -7,6 +7,7 @@ import {
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 //@ts-ignore
@@ -136,6 +137,15 @@ export default function Form() {
             </form>
 
             <div>
+              <p className="text-center text-sm text-gray-500">
+                New here?
+                <Link
+                  href="/register"
+                  className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+                >
+                  <span className="ml-1">Create an account</span>
+                </Link>
+              </p>
               <div className="relative mt-10">
                 <div
                   className="absolute inset-0 flex items-center"
@@ -205,16 +215,6 @@ export default function Form() {
               </div>
             </div>
           </div>
-
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{' '}
-            <a
-              href="#"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-            >
-              Start a 14 day free trial
-            </a>
-          </p>
         </div>
       </div>
     </>

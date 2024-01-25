@@ -4,11 +4,14 @@ import { HeroPattern } from '@/components/HeroPattern';
 import Stepper from '@/components/Stepper';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import ProgressBar from '@ramonak/react-progress-bar';
+//import ProgressBar from '@ramonak/react-progress-bar';
+import Router from 'next/router';
+import ProgressBar from '@/components/ProgressBar';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const [progress, setProgress] = useState(10);
+  const [progress, setProgress] = useState(0);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     switch (pathname) {
@@ -28,15 +31,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <ProgressBar
-        completed={progress}
-        className="absolute w-full"
-        height="5px"
-        borderRadius="0%"
-        isLabelVisible={false}
-        animateOnRender={true}
-        bgColor="linear-gradient(to right, #ffe000, #799f0c);"
-      />
+      <ProgressBar percentage={progress} />
 
       <HeroPattern />
       <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">

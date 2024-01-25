@@ -28,7 +28,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/SimpleSearch.jsx"
+    "src/components/SimpleSearch.jsx",
+    "src/components/ProgressBar.tsx"
   ],
   "exclude": ["node_modules"]
 }

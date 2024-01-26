@@ -68,12 +68,11 @@ export function OrgForm() {
 
 export default function Page() {
   const { data: session, status } = useSession();
-
+  console.log(session);
   return (
     <>
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         create an organization
-        <span>{session?.user?.email}</span>
       </h2>
       <OrgForm />
     </>

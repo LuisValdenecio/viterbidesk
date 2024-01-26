@@ -84,9 +84,14 @@ export async function createOrganization(
   const { organizationName } = validatedFields.data;
 
   try {
-    // save org on the db
+    await sql`
+        INSERT INTO organizations (name)
+        VALUES (${organizationName})
+        ON CONFLICT (id) DO NOTHING`;
   } catch (error) {
-    // catch error on saving org on the db
+    return {
+      message: 'Failed to register organization.',
+    };
   }
 
   revalidatePath('/organizations/agents');

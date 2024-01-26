@@ -124,9 +124,9 @@ async function seedAgents(client) {
 async function main() {
   const client = await db.connect();
 
-  //await seedUsers(client);
+  await seedUsers(client);
   //await seedCustomers(client);
-  await seedAgents(client);
+  //await seedAgents(client);
   await client.end();
 }
 

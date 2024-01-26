@@ -30,8 +30,18 @@ export default function Form() {
     });
 
     if (response.status === 200) {
-      router.push('/organizations/new');
-      router.refresh();
+      const signInResponse = await signIn('credentials', {
+        email: formData.get('email'),
+        password: formData.get('password'),
+        redirect: false,
+      });
+
+      if (!signInResponse?.error) {
+        router.push('/organizations/new');
+        router.refresh();
+      } else {
+        console.log('auto-login failed');
+      }
     } else {
       console.log('something bad happened');
     }

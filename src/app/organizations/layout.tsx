@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 //import ProgressBar from '@ramonak/react-progress-bar';
 import Router from 'next/router';
 import ProgressBar from '@/components/ProgressBar';
+import { SessionProvider } from 'next-auth/react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [progress, setProgress] = useState(0);
@@ -31,17 +32,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <ProgressBar percentage={progress} />
-
-      <HeroPattern />
-      <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
-        <div className="two-column-layout">
-          <div className="relative">
-            <Stepper />
+      <SessionProvider>
+        <ProgressBar percentage={progress} />
+        <HeroPattern />
+        <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
+          <div className="two-column-layout">
+            <div className="relative">
+              <Stepper />
+            </div>
+            <div>{children}</div>
           </div>
-          <div>{children}</div>
         </div>
-      </div>
+      </SessionProvider>
     </>
   );
 };

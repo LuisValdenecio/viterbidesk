@@ -4,6 +4,7 @@ import { createOrganization } from '@/app/lib/actions';
 //@ts-ignore
 import { useFormState } from 'react-dom';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { SessionProvider, useSession } from 'next-auth/react';
 
 export function OrgForm() {
   const initialState = { message: null, errors: {} };
@@ -66,12 +67,14 @@ export function OrgForm() {
 }
 
 export default function Page() {
+  const { data: session, status } = useSession();
+
   return (
     <>
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         create an organization
+        <span>{session?.user?.email}</span>
       </h2>
-
       <OrgForm />
     </>
   );

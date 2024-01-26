@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
 
 //import { AuthError } from 'next-auth';
 //import { signIn } from '../../../auth';
@@ -82,11 +84,12 @@ export async function createOrganization(
   }
 
   const { organizationName } = validatedFields.data;
+  const session = await getServerSession(authOptions);
 
   try {
     await sql`
-        INSERT INTO organizations (name)
-        VALUES (${organizationName})
+        INSERT INTO organizations (name, owner_id)
+        VALUES (${organizationName}, ${session?.user?.id})
         ON CONFLICT (id) DO NOTHING`;
   } catch (error) {
     return {

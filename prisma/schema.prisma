@@ -37,7 +37,7 @@ model Customer {
   id  String  @id @default(cuid())   
   name String @db.VarChar(255)
   email String @unique
-  password String
+  password String?
   image_url String @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,9 +49,9 @@ model Agent {
   id  String  @id @default(cuid())   
   name String @db.VarChar(255)
   email String @unique
-  password String
+  password String?
   role String
-  image_url String @db.VarChar(255)
+  image_url String? @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

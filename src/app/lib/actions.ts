@@ -1,14 +1,16 @@
 'use server';
 
 import { z } from 'zod';
-import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
+import { PrismaClient } from '@prisma/client';
 
 //import { AuthError } from 'next-auth';
 //import { signIn } from '../../../auth';
+
+const prisma = new PrismaClient();
 
 const AgentFormSchema = z.object({
   agentName: z.string().min(1, {
@@ -87,10 +89,12 @@ export async function createOrganization(
   const session = await getServerSession(authOptions);
 
   try {
-    await sql`
-        INSERT INTO organizations (name, owner_id)
-        VALUES (${organizationName}, ${session?.user?.id})
-        ON CONFLICT (id) DO NOTHING`;
+    const organization = await prisma.organization.create({
+      data: {
+        name: organizationName,
+        userId: session?.user?.id,
+      },
+    });
   } catch (error) {
     return {
       message: 'Failed to register organization.',
@@ -121,11 +125,14 @@ export async function createCustomer(
   const { customerName, customerEmail, customerImgUrl } = validatedFields.data;
 
   try {
-    await sql`
-        INSERT INTO customers (name, email, image_url)
-        VALUES (${customerName}, ${customerEmail}, ${customerImgUrl})
-        ON CONFLICT (id) DO NOTHING;
-    `;
+    const customer = await prisma.customer.create({
+      data: {
+        name: customerName,
+        email: customerEmail,
+        password: '',
+        image_url: '',
+      },
+    });
   } catch (error) {
     return {
       message: 'Database Error: Failed to register Customer.',
@@ -144,8 +151,6 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     agentRole: formData.get('role'),
   });
 
-  console.log(validatedFields);
-
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -159,11 +164,15 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     validatedFields.data;
 
   try {
-    await sql`
-        INSERT INTO agents (name, email, image_url, role)
-        VALUES (${agentName}, ${agentEmail}, ${agentImgUrl}, ${agentRole})
-        ON CONFLICT (id) DO NOTHING;
-    `;
+    const agent = await prisma.agent.create({
+      data: {
+        name: agentName,
+        email: agentEmail,
+        password: '',
+        image_url: '',
+        role: agentRole,
+      },
+    });
   } catch (error) {
     return {
       message: 'Database Error: Failed to Agent.',
@@ -200,11 +209,16 @@ export async function updateAgent(
     validatedFields.data;
 
   try {
-    await sql`
-        UPDATE agents
-        SET name = ${agentName}, email = ${agentEmail}, role = ${agentRole}
-        WHERE id = ${id}
-    `;
+    const updateAgent = await prisma.agent.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: agentName,
+        email: agentEmail,
+        role: agentRole,
+      },
+    });
   } catch (error) {
     return {
       message: 'Database Error: Failed to update agent',
@@ -217,19 +231,29 @@ export async function updateAgent(
 
 export async function deleteAgent(id: string) {
   try {
-    await sql`DELETE FROM agents WHERE id = ${id}`;
+    const deleteAgent = await prisma.agent.delete({
+      where: {
+        id: id,
+      },
+    });
+
     revalidatePath('/admin/agents');
-    return { message: 'Deleted invoice.' };
+    return { message: 'Deleted agent.' };
   } catch (e) {
     return {
-      message: 'Database Error: Failed to delete invoice',
+      message: 'Database Error: Failed to delete agent',
     };
   }
 }
 
 export async function deleteCustomer(id: string) {
   try {
-    await sql`DELETE FROM customers WHERE id = ${id}`;
+    const deleteCustomer = await prisma.customer.delete({
+      where: {
+        id: id,
+      },
+    });
+
     revalidatePath('/dashboard/admin/agents');
     return { message: 'Deleted Customer.' };
   } catch (e) {
@@ -263,11 +287,15 @@ export async function updateCustomer(
   const { customerName, customerEmail } = validatedFields.data;
 
   try {
-    await sql`
-        UPDATE customers
-        SET name = ${customerName}, email = ${customerEmail}
-        WHERE id = ${id}
-    `;
+    const updateCustomer = await prisma.customer.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: customerName,
+        email: customerEmail,
+      },
+    });
   } catch (error) {
     return {
       message: 'Database Error: Failed to update customer',

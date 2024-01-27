@@ -2,13 +2,22 @@ import { User } from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaClient } from '@prisma/client';
 import { compare } from 'bcrypt';
 import { z } from 'zod';
 
-async function getUser(email: string): Promise<User | undefined> {
+const prisma = new PrismaClient();
+
+async function getUser(email: string): Promise<any | undefined> {
   try {
-    const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0];
+    // By unique identifier
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    return user;
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');

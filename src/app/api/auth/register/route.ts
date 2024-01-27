@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcrypt';
 import { sql } from '@vercel/postgres';
+import { PrismaClient } from '@prisma/client';
 import { signIn } from 'next-auth/react';
+
+const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -12,15 +15,12 @@ export async function POST(request: Request) {
     const hashedPassword = await hash(password, 10);
     let name: string = 'randomName';
 
-    const response = sql`
-            INSERT INTO users(name, email, password) 
-                VALUES (${name}, ${email}, ${hashedPassword})
-        `;
-
-    const signInResponse = await signIn('credentials', {
-      email: email,
-      password: password,
-      redirect: false,
+    const user = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        password: hashedPassword,
+      },
     });
   } catch (e) {
     console.error({ e });

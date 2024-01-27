@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "db:migrate": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:latest",
+    "db:migrate:make": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:make",
+    "db:migrate:undo": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:down",
     "dev": "next dev",
     "lint": "next lint",
     "lint-and-stage": "npm run prettier && git add .",
@@ -11,9 +14,6 @@
     "prettier:check": "prettier --check --ignore-unknown .",
     "seed": "node -r dotenv/config ./scripts/seed.js",
     "start": "next start",
-    "db:migrate": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:latest",
-    "db:migrate:undo": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:down",
-    "db:migrate:make": "cross-env TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' knex migrate:make",
     "vercel-build": "prisma generate && pnpm db:migrate && next build"
   },
   "browserslist": "defaults, not ie <= 11",

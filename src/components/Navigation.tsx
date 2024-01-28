@@ -11,6 +11,7 @@ import { useIsInsideMobileNavigation } from '@/components/MobileNavigation';
 import { useSectionStore } from '@/components/SectionProvider';
 import { Tag } from '@/components/Tag';
 import { remToPx } from '@/lib/remToPx';
+import SignedInUser from './SignedInUser';
 
 interface NavGroup {
   title: string;
@@ -264,25 +265,30 @@ export const navigation: Array<NavGroup> = [
 
 export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
   return (
-    <nav {...props}>
-      <ul role="list">
-        <TopLevelNavItem href="/">API</TopLevelNavItem>
-        <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
-        <TopLevelNavItem href="#">Support</TopLevelNavItem>
+    <>
+      <nav {...props}>
+        <ul role="list">
+          <TopLevelNavItem href="/">API</TopLevelNavItem>
+          <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
+          <TopLevelNavItem href="#">Support</TopLevelNavItem>
 
-        {navigation.map((group, groupIndex) => (
-          <NavigationGroup
-            key={group.title}
-            group={group}
-            className={groupIndex === 0 ? 'md:mt-0' : ''}
-          />
-        ))}
-        <li className="sticky bottom-0 z-10 mt-6 min-[416px]:hidden">
-          <Button href="#" variant="filled" className="w-full">
-            Sign in
-          </Button>
-        </li>
-      </ul>
-    </nav>
+          {navigation.map((group, groupIndex) => (
+            <NavigationGroup
+              key={group.title}
+              group={group}
+              className={groupIndex === 0 ? 'md:mt-0' : ''}
+            />
+          ))}
+
+          <li className="sticky bottom-0 z-10 mt-6 min-[416px]:hidden">
+            <Button href="#" variant="filled" className="w-full">
+              Sign in
+            </Button>
+          </li>
+
+          <SignedInUser />
+        </ul>
+      </nav>
+    </>
   );
 }

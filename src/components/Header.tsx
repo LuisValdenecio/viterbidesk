@@ -13,6 +13,7 @@ import { useMobileNavigationStore } from '@/components/MobileNavigation';
 import { MobileSearch, Search } from '@/components/Search';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { BellIcon } from '@heroicons/react/24/outline';
+import AdminLayoutMenu from './AdminLayoutMenu';
 
 function TopLevelNavItem({
   href,
@@ -80,6 +81,7 @@ export const Header = forwardRef<
       <div className="flex items-center gap-5">
         <nav className="hidden md:block">
           <ul role="list" className="flex items-center gap-8">
+            <AdminLayoutMenu />
             <TopLevelNavItem href="/">API</TopLevelNavItem>
             <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
             <TopLevelNavItem href="#">Support</TopLevelNavItem>
@@ -90,9 +92,7 @@ export const Header = forwardRef<
           <MobileSearch />
           <ThemeToggle />
         </div>
-        <div className="hidden min-[416px]:contents">
-          <BellIcon className="h-6 w-6" aria-hidden="true" />
-        </div>
+        <div className="hidden min-[416px]:contents"></div>
       </div>
     </motion.div>
   );

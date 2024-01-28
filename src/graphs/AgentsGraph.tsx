@@ -83,7 +83,7 @@ const AgentGraph: React.FC<MyComponentProps> = () => {
 
   return (
     <>
-      <div className="w-full max-w-sm rounded-lg bg-white p-4 shadow dark:bg-gray-800 md:p-6">
+      <div className=" max-w-sm rounded-lg bg-white p-4 shadow dark:bg-zinc-900 md:p-6">
         <div className="flex justify-between">
           <div>
             <h5 className="pb-2 text-3xl font-bold leading-none text-gray-900 dark:text-white">

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import React, { Fragment, useRef, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 type agent_data = Agent[];
 
@@ -40,15 +41,17 @@ const GetAgentsData: React.FC<{
 
       <ul role="list" className="divide-y divide-gray-100">
         {agents.map((agent) => (
-          <li key={agent.email} className="flex justify-between gap-x-6 py-5">
+          <li key={agent.email} className="flex justify-between gap-x-6 py-4">
             <div className="flex min-w-0 gap-x-4">
-              <img
-                className="h-12 w-12 flex-none rounded-full bg-gray-50"
-                src={agent.image_url}
-                alt=""
-                width={28}
-                height={28}
-              />
+              <span className="inline-block h-10 w-10 overflow-hidden rounded-full bg-gray-100">
+                <svg
+                  className="h-full w-full text-gray-300"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </span>
               <div className="min-w-0 flex-auto">
                 <p className="text-sm font-semibold leading-6 text-gray-900">
                   <a href="/" className="hover:underline">

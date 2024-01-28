@@ -25,7 +25,7 @@ export default function Page() {
           <h2 className="text-base font-semibold leading-7 text-gray-900">
             Profile Details
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
             This information will be displayed publicly so be careful what you
             share.
           </p>
@@ -34,7 +34,7 @@ export default function Page() {
             <div className="sm:col-span-2">
               <label
                 htmlFor="first-name"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400"
               >
                 Name*
               </label>
@@ -72,7 +72,7 @@ export default function Page() {
             <div className="sm:col-span-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400"
               >
                 Email address*
               </label>
@@ -107,10 +107,10 @@ export default function Page() {
         </div>
 
         <div className="border-b border-gray-900/10 pb-12">
-          <h2 className="text-base font-semibold leading-7 text-gray-900">
+          <h2 className="text-base font-semibold leading-7 text-gray-900 dark:text-gray-400">
             Roles
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
             We will always let you know about important changes, but you pick
             what else you want to hear about.
           </p>
@@ -148,11 +148,11 @@ export default function Page() {
                   <div className="text-sm leading-6">
                     <label
                       htmlFor="comments"
-                      className="font-medium text-gray-900"
+                      className="font-medium text-gray-900 dark:text-gray-400"
                     >
                       Admin
                     </label>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-gray-400">
                       System administrators have full access to configure
                       settings and manage all roles.
                     </p>
@@ -173,11 +173,11 @@ export default function Page() {
                   <div className="text-sm leading-6">
                     <label
                       htmlFor="offers"
-                      className="font-medium text-gray-900"
+                      className="font-medium text-gray-900 dark:text-gray-400"
                     >
                       Staff
                     </label>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-gray-400">
                       Get notified when a candidate accepts or rejects an offer.
                     </p>
                   </div>
@@ -196,11 +196,11 @@ export default function Page() {
                   <div className="text-sm leading-6">
                     <label
                       htmlFor="offers"
-                      className="font-medium text-gray-900"
+                      className="font-medium text-gray-900 dark:text-gray-400"
                     >
                       Team Lead
                     </label>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-gray-400">
                       Get notified when a candidate accepts or rejects an offer.
                     </p>
                   </div>

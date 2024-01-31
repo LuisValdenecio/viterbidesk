@@ -12,48 +12,50 @@ datasource db {
 
 model User {
   id  String  @id @default(cuid()) 
-  name String @db.VarChar(255)
-  email String @unique
-  password String
-  organization Organization?
+  name String? @db.VarChar(255)
+  email String? @unique
+  password String?
+  userToOrganization UserToOrganization?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
 }
 
+model UserToOrganization {
+  id  String  @id @default(cuid()) 
+  user_id String @unique 
+  org_id String @unique 
+  role_name String @unique @db.VarChar(100)
+  organization Organization @relation(fields: [org_id], references: [id])
+  role Role @relation(fields: [role_name], references: [name])
+  user User @relation(fields : [user_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users_to_organizations")
+}
+
 model Organization {
   id String  @id @default(cuid()) 
   name String @db.VarChar(255)
-  userId String @unique
-  user  User  @relation(fields: [userId], references: [id])
+  email String? @unique
+  role Role?
+  userToOrganization UserToOrganization?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("organizations")
 }
 
-model Customer {
-  id  String  @id @default(cuid())   
-  name String @db.VarChar(255)
-  email String @unique
-  password String?
-  image_url String @db.VarChar(255)
+model Role {
+  name String @unique @id @db.VarChar(100)
+  org_id String? @unique
+  organization Organization? @relation(fields: [org_id], references: [id])
+  userToOrganization UserToOrganization?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("customers")
-}
-
-model Agent {
-  id  String  @id @default(cuid())   
-  name String @db.VarChar(255)
-  email String @unique
-  password String?
-  role String
-  image_url String? @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-   @@map("agents")
+  @@map("roles")
 }

@@ -6,6 +6,7 @@ import SimpleSearchAgent from '@/components/SimpleSearchAgent';
 import { LinkIcon } from '@heroicons/react/20/solid';
 
 import Link from 'next/link';
+import { scheduleEmailInvitation } from '@/app/lib/actions';
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
@@ -46,7 +47,6 @@ export function SocialLinks() {
   };
 
   const handleDataFromInvitationDialog = (data: string[]) => {
-    console.log(data);
     setEmailInvitations(data);
   };
 

@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import FriendlyAlert from '../components/FriendlyAlert';
+import { scheduleEmailInvitation } from '../app/lib/actions';
 import { useRef } from 'react';
 import { z } from 'zod';
 import Papa from 'papaparse';
@@ -105,6 +106,11 @@ export default function SimpleSearchAgent({ open, close, parentCallBack }) {
 
   const onCloseDialogWindow = () => {
     parentCallBack(invitations);
+    close();
+  };
+
+  const sendEmailInvitation = () => {
+    scheduleEmailInvitation(invitations);
     close();
   };
 
@@ -409,6 +415,13 @@ export default function SimpleSearchAgent({ open, close, parentCallBack }) {
                                       className=" w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                     >
                                       Revoke
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={sendEmailInvitation}
+                                      className=" w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                    >
+                                      Send
                                     </button>
                                   </div>
 

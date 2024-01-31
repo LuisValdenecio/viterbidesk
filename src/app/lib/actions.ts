@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
-import { PrismaClient } from '@prisma/client';
+import { Organization, PrismaClient, User } from '@prisma/client';
 
 //import { AuthError } from 'next-auth';
 //import { signIn } from '../../../auth';
@@ -89,13 +89,20 @@ export async function createOrganization(
   const session = await getServerSession(authOptions);
 
   try {
-    const organization = await prisma.organization.create({
+    // create an org and assign ownership rights to the loggedin user
+    const newOrganization: Organization = await prisma.organization.create({
       data: {
         name: organizationName,
-        userId: session?.user?.id,
+        userToOrganization: {
+          create: {
+            user_id: session?.user?.id,
+            role_name: 'owner',
+          },
+        },
       },
     });
   } catch (error) {
+    console.error(error);
     return {
       message: 'Failed to register organization.',
     };
@@ -103,6 +110,42 @@ export async function createOrganization(
 
   revalidatePath('/organizations/agents');
   redirect('/organizations/agents');
+}
+
+export async function scheduleEmailInvitation(emails: any) {
+  try {
+    const session = await getServerSession(authOptions);
+    const usersData = emails.map((email: string) => ({ email }));
+
+    const orgOwnedByLoggedInUser = await prisma.userToOrganization.findUnique({
+      where: {
+        user_id: session?.user?.id,
+        role_name: 'owner',
+      },
+      select: {
+        org_id: true,
+      },
+    });
+
+    console.log(orgOwnedByLoggedInUser);
+
+    emails.map(async (email: string) => {
+      const newUser: User = await prisma.user.create({
+        data: {
+          name: 'Someone',
+          email: email,
+          userToOrganization: {
+            create: {
+              org_id: orgOwnedByLoggedInUser.org_id,
+              role_name: 'agent',
+            },
+          },
+        },
+      });
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export async function createCustomer(
@@ -209,14 +252,13 @@ export async function updateAgent(
     validatedFields.data;
 
   try {
-    const updateAgent = await prisma.agent.update({
+    const updateAgent = await prisma.user.update({
       where: {
         id: id,
       },
       data: {
         name: agentName,
         email: agentEmail,
-        role: agentRole,
       },
     });
   } catch (error) {
@@ -231,7 +273,7 @@ export async function updateAgent(
 
 export async function deleteAgent(id: string) {
   try {
-    const deleteAgent = await prisma.agent.delete({
+    const deleteAgent = await prisma.user.delete({
       where: {
         id: id,
       },

@@ -285,8 +285,6 @@ export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
               Sign in
             </Button>
           </li>
-
-          <SignedInUser />
         </ul>
       </nav>
     </>

@@ -13,7 +13,6 @@ const ResourceNotFound: React.FC<{ linkAndLabel: LinkAndLabel }> = ({
 }) => {
   return (
     <>
-      <HeroPattern />
       <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center py-16 text-center">
         <h1 className="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
           {linkAndLabel.mainTitle}

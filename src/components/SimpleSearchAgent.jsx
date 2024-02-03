@@ -11,7 +11,8 @@ import {
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import FriendlyAlert from '../components/FriendlyAlert';
 import { scheduleEmailInvitation } from '../app/lib/actions';
-import { useRef } from 'react';
+import { organizationStore } from '@/store/organization';
+import { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import Papa from 'papaparse';
 
@@ -31,6 +32,14 @@ export default function SimpleSearchAgent({ open, close, parentCallBack }) {
   const [filteredinvitations, setFilteredInvitations] = useState(invitations);
   const [newEmailInputField, setNewEmailInputField] = useState('');
   const [inviteeEmailInputField, setInviteeEmailInputField] = useState('');
+  const activeOrganizationId = organizationStore(
+    (state) => state.activeOrganizationId,
+  );
+  const [activeOrgId, setActiveOrgId] = useState(activeOrganizationId);
+
+  useEffect(() => {
+    setActiveOrgId(activeOrganizationId);
+  }, [activeOrganizationId]);
 
   const csvInputRef = useRef(null);
 
@@ -110,7 +119,7 @@ export default function SimpleSearchAgent({ open, close, parentCallBack }) {
   };
 
   const sendEmailInvitation = () => {
-    scheduleEmailInvitation(invitations);
+    scheduleEmailInvitation(invitations, activeOrgId);
     close();
   };
 

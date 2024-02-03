@@ -146,7 +146,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       value="admin"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      defaultChecked={agent.role === 'admin'}
+                      defaultChecked={agent.role_name === 'owner'}
                       aria-describedby="role-error"
                     />
                   </div>
@@ -155,7 +155,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       htmlFor="comments"
                       className="font-medium text-gray-900"
                     >
-                      Admin
+                      Owner
                     </label>
                     <p className="text-gray-500">
                       System administrators have full access to configure
@@ -172,7 +172,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       value="staff"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      defaultChecked={agent.role === 'staff'}
+                      defaultChecked={agent.role_name === 'admin'}
                       aria-describedby="role-error"
                     />
                   </div>
@@ -181,7 +181,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       htmlFor="offers"
                       className="font-medium text-gray-900"
                     >
-                      Staff
+                      Admin
                     </label>
                     <p className="text-gray-500">
                       Get notified when a candidate accepts or rejects an offer.
@@ -196,7 +196,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       value="team-lead"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      defaultChecked={agent.role === 'team-lead'}
+                      defaultChecked={agent.role_name === 'agent'}
                       aria-describedby="role-error"
                     />
                   </div>
@@ -205,7 +205,7 @@ export default function EditAgentForm({ agent }: { agent: Agent }) {
                       htmlFor="offers"
                       className="font-medium text-gray-900"
                     >
-                      Team Lead
+                      Agent
                     </label>
                     <p className="text-gray-500">
                       Get notified when a candidate accepts or rejects an offer.

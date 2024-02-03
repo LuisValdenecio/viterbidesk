@@ -43,7 +43,6 @@
     "fast-glob": "^3.3.0",
     "flexsearch": "^0.7.31",
     "flowbite": "^2.2.1",
-    "flowbite-react": "^0.7.2",
     "framer-motion": "7.8.1",
     "knex": "^3.1.0",
     "mdast-util-to-string": "^3.2.0",
@@ -68,7 +67,7 @@
     "unist-util-filter": "^4.0.1",
     "unist-util-visit": "^4.1.1",
     "zod": "^3.22.2",
-    "zustand": "^4.3.2"
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

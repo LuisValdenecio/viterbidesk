@@ -30,21 +30,7 @@ const buttonLabelAndLink: {
   },
 };
 
-const linkAndLabels: {
-  href: string;
-  label: string;
-  mainTitle: string;
-  mainText: string;
-} = {
-  href: '/dashboard/admin/agents/new',
-  label: 'add agent',
-  mainTitle: 'Oops! No Agents Found',
-  mainText:
-    'Looks like there are no registered agents in the system at the moment.',
-};
-
 export default async function Page() {
-  const agents = await fetchAgents();
   return (
     <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
       <SectionHeading
@@ -52,13 +38,7 @@ export default async function Page() {
         btnAndLink={buttonLabelAndLink}
         mainTitle={{ title: 'Agents' }}
       />
-      {agents.length > 0 ? (
-        <Suspense fallback={<UserSkeleton />}>
-          <Agents />
-        </Suspense>
-      ) : (
-        <ResourceNotFound linkAndLabel={linkAndLabels} />
-      )}
+      <Agents />
     </div>
   );
 }

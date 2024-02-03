@@ -24,7 +24,7 @@ async function getUser(email: string): Promise<any | undefined> {
   }
 }
 
-const handler = NextAuth({
+export const handler = NextAuth({
   session: {
     strategy: 'jwt',
   },
@@ -64,11 +64,16 @@ const handler = NextAuth({
 
   callbacks: {
     // pass in user id to the token
-    async jwt({ token, user, session }) {
+    async jwt({ token, user, session, trigger }) {
+      if (trigger === 'update') {
+        return { ...token, ...session.user };
+      }
+
       if (user) {
         return {
           ...token,
           id: user.id,
+          organizationId: '',
         };
       }
       return token;
@@ -79,6 +84,7 @@ const handler = NextAuth({
         user: {
           ...session.user,
           id: token.id,
+          organizationId: token.organizationId,
         },
       };
     },

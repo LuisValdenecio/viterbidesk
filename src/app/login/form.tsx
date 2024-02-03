@@ -2,6 +2,7 @@
 
 import { HeroPattern } from '@/components/HeroPattern';
 import { ButtonSignIn } from '@/components/button_signin';
+import { useSession } from 'next-auth/react';
 import {
   ArrowRightIcon,
   ExclamationCircleIcon,

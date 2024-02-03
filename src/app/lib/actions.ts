@@ -101,6 +101,9 @@ export async function createOrganization(
         },
       },
     });
+
+    // update session so that it also contains the newly created organization id
+    //await fetch(`/api/auth/session?organizationId=${newOrganization.id}`)
   } catch (error) {
     console.error(error);
     return {
@@ -112,22 +115,23 @@ export async function createOrganization(
   redirect('/organizations/agents');
 }
 
-export async function scheduleEmailInvitation(emails: any) {
+export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
   try {
     const session = await getServerSession(authOptions);
-    const usersData = emails.map((email: string) => ({ email }));
 
-    const orgOwnedByLoggedInUser = await prisma.userToOrganization.findUnique({
-      where: {
-        user_id: session?.user?.id,
-        role_name: 'owner',
-      },
-      select: {
-        org_id: true,
-      },
-    });
+    let orgOwnedByLoggedInUser = { org_id: activeOrgId };
 
-    console.log(orgOwnedByLoggedInUser);
+    if (!activeOrgId) {
+      orgOwnedByLoggedInUser = await prisma.userToOrganization.findUnique({
+        where: {
+          user_id: session?.user?.id,
+          role_name: 'owner',
+        },
+        select: {
+          org_id: true,
+        },
+      });
+    }
 
     emails.map(async (email: string) => {
       const newUser: User = await prisma.user.create({

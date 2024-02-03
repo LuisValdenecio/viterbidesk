@@ -15,9 +15,7 @@ export type User = {
 
 export type Agent = {
   id: string;
-  user_id: string;
   name: string;
   email: string;
-  image_url: string;
-  role: 'admin' | 'staff' | 'team-lead';
+  role_name: 'owner' | 'admin' | 'agent' | 'customer';
 };

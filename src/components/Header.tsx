@@ -2,6 +2,10 @@ import { forwardRef } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { signOut } from 'next-auth/react';
+
+import { Fragment } from 'react';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
 
 import { Button } from '@/components/Button';
 import { Logo } from '@/components/Logo';
@@ -14,6 +18,7 @@ import { MobileSearch, Search } from '@/components/Search';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { BellIcon } from '@heroicons/react/24/outline';
 import AdminLayoutMenu from './AdminLayoutMenu';
+import SignedInUser from './SignedInUser';
 
 function TopLevelNavItem({
   href,
@@ -81,10 +86,97 @@ export const Header = forwardRef<
       <div className="flex items-center gap-5">
         <nav className="hidden md:block">
           <ul role="list" className="flex items-center gap-8">
-            <AdminLayoutMenu />
+            <SignedInUser />
             <TopLevelNavItem href="/">API</TopLevelNavItem>
             <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
-            <TopLevelNavItem href="#">Support</TopLevelNavItem>
+            <TopLevelNavItem href="#">
+              {/* Profile dropdown */}
+              <Menu as="div" className="relative ml-3">
+                <div>
+                  <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <span className="absolute -inset-1.5" />
+                    <span className="sr-only">Open user menu</span>
+                    <img
+                      className="h-8 w-8 rounded-full"
+                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                      alt=""
+                    />
+                  </Menu.Button>
+                </div>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <a
+                          href="#"
+                          className={clsx(
+                            'block px-4 py-2 text-sm text-gray-700',
+                            {
+                              'bg-gray-100': active,
+                            },
+                          )}
+                        >
+                          Your Profile
+                        </a>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <a
+                          href="#"
+                          className={clsx(
+                            'block px-4 py-2 text-sm text-gray-700',
+                            {
+                              'bg-gray-100': active,
+                            },
+                          )}
+                        >
+                          Your Profile
+                        </a>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <a
+                          href="#"
+                          className={clsx(
+                            'block px-4 py-2 text-sm text-gray-700',
+                            {
+                              'bg-gray-100': active,
+                            },
+                          )}
+                        >
+                          Your Profile
+                        </a>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => signOut()}
+                          className={clsx(
+                            'block px-4 py-2 w-full text-left text-sm text-gray-700',
+                            {
+                              'bg-gray-100': active,
+                            },
+                          )}
+                        >
+                          Log out
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+            </TopLevelNavItem>
           </ul>
         </nav>
         <div className="hidden md:block md:h-5 md:w-px md:bg-zinc-900/10 md:dark:bg-white/15" />

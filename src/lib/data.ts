@@ -7,6 +7,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/[...nextauth]';
 import { organizationStore } from '@/store/organization';
 
 const prisma = new PrismaClient();
+const ITEMS_PER_PAGE = 6;
 
 export async function fetchCustomers() {
   // Add noStore() here prevent the response from being cached.
@@ -40,15 +41,19 @@ export async function fetchOrganizations() {
   }
 }
 
-export async function fetchAgents(activeOrgId: any) {
+export async function fetchAgents(
+  activeOrgId: any,
+  query: string,
+  currentPage: number,
+) {
   // Add noStore() here prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
   noStore();
 
   const session = await getServerSession(authOptions);
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   //const organization = organizationStore((state : any) => state.activeOrganizationId);
   //console.log("active organization", organization);
-  console.log(activeOrgId);
 
   try {
     let orgOwnedByLoggedInUser = { org_id: activeOrgId };
@@ -65,14 +70,24 @@ export async function fetchAgents(activeOrgId: any) {
       });
     }
 
-    const agents = await prisma.$queryRaw`
-      SELECT users.id, users.name, users.email, users_to_organizations.role_name
+    const invoices = await prisma.$queryRaw`
+      SELECT
+        users.id,
+        users.name,
+        users.email,
+        users_to_organizations.role_name
       FROM users
-      INNER JOIN users_to_organizations ON users.id = users_to_organizations.user_id
-      WHERE users_to_organizations.org_id = ${orgOwnedByLoggedInUser?.org_id}   
+      JOIN users_to_organizations ON users.id = users_to_organizations.user_id
+      WHERE
+      users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
+      ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
+      ORDER BY users.name DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    return agents;
+    console.log('query:', query);
+    console.log('current page', currentPage);
+    return invoices;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch agent data.');
@@ -93,5 +108,41 @@ export async function fetchAgentById(id: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch agent.');
+  }
+}
+
+export async function fetchUsersPages(query: string, activeOrgId: string) {
+  noStore();
+
+  const session = await getServerSession(authOptions);
+
+  try {
+    let orgOwnedByLoggedInUser = { org_id: activeOrgId };
+
+    if (!activeOrgId) {
+      orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
+        where: {
+          user_id: session?.user?.id,
+          role_name: 'owner',
+        },
+        select: {
+          org_id: true,
+        },
+      });
+    }
+
+    const totalUsers = await prisma.$queryRaw`SELECT count(*)
+    FROM users
+    INNER JOIN users_to_organizations ON users.id = users_to_organizations.user_id
+    WHERE
+    users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
+    ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
+  `;
+    console.log(query);
+    const totalPages = Math.ceil(Number(totalUsers[0]?.count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of users.');
   }
 }

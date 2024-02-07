@@ -61,9 +61,9 @@ const SectionHeading: React.FC<{
         {}
         <div className="md:flex md:items-center md:justify-between">
           {mainTitle && (
-            <h3 className="text-base font-semibold leading-6 text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {mainTitle.title}
-            </h3>
+            </h1>
           )}
 
           {btnAndLink && (

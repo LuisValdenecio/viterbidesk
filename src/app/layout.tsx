@@ -1,3 +1,4 @@
+import { HeroPattern } from '@/components/HeroPattern';
 import '../styles/tailwind.css';
 import { Metadata } from 'next';
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { Agent } from '@/lib/definitions';
-import { fetchAgents } from '@/lib/data';
 import GetAgentsData from './GetAgentsData';
+import { Suspense, useEffect, useState } from 'react';
 import { organizationStore } from '@/store/organization';
-import { useEffect, useState, Suspense } from 'react';
-import { UserSkeleton } from '@/components/Skeletons';
+import { fetchAgents } from '@/lib/data';
+import { UserSkeleton } from './Skeletons';
 import ResourceNotFound from './no-resource';
 
 const linkAndLabels: {
@@ -21,41 +21,39 @@ const linkAndLabels: {
     'Looks like there are no registered agents in the system at the moment.',
 };
 
-export default function Agents() {
+export default function Agents({
+  query,
+  currentPage,
+}: {
+  query: string;
+  currentPage: number;
+}) {
   const emptyArray: Array<any> = [];
-  let agents: Array<any> = [];
-  const activeOrganizationId = organizationStore(
+  let users_copy: any = null;
+  const [users, setUsers] = useState(emptyArray);
+
+  const activeOrgId = organizationStore(
     (state: any) => state.activeOrganizationId,
   );
 
-  //alert(organization);
-  //const org = organizationStore.subscribe((state : any) => alert(state.activeOrganizationId));
-  //org();
-
-  const [data, setData] = useState([emptyArray]);
-
   useEffect(() => {
     const fetchData = async () => {
-      agents = await fetchAgents(activeOrganizationId);
-      setData(agents);
+      users_copy = await fetchAgents(activeOrgId, query, currentPage);
+      console.log(query);
+      console.log(currentPage);
+      setUsers(users_copy);
     };
 
     fetchData().catch((e) => {
       console.error('An error occured while fetching the data');
     });
-  }, [activeOrganizationId]);
-
-  const agentsFiltered = data.filter((agent) => agent.role_name === 'agent');
+  }, [activeOrgId, query, currentPage]);
 
   return (
     <>
-      {data.filter((agent) => agent.role_name === 'agent').length > 0 ? (
-        <Suspense fallback={<UserSkeleton />}>
-          <GetAgentsData agents={agentsFiltered} />
-        </Suspense>
-      ) : (
-        <ResourceNotFound linkAndLabel={linkAndLabels} />
-      )}
+      <Suspense fallback={<UserSkeleton />}>
+        <GetAgentsData agents={users} />
+      </Suspense>
     </>
   );
 }

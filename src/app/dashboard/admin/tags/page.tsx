@@ -1,5 +1,4 @@
 import ResourceNotFound from '@/components/no-resource';
-import { Customers } from '@/components/Customers';
 import Pagination from '@/components/Pagination';
 import { Metadata } from 'next';
 
@@ -22,21 +21,5 @@ const linkAndLabels: {
 };
 
 export default function Page() {
-  return (
-    <>
-      {1 < 0 ? (
-        <Customers />
-      ) : (
-        <ResourceNotFound linkAndLabel={linkAndLabels} />
-      )}
-
-      {1 < 0 ? (
-        <div className="mt-10">
-          <Pagination />
-        </div>
-      ) : (
-        <div></div>
-      )}
-    </>
-  );
+  return <></>;
 }

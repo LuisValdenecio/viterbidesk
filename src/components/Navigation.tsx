@@ -232,29 +232,12 @@ function NavigationGroup({
 
 export const navigation: Array<NavGroup> = [
   {
-    title: 'Guides',
-    links: [
-      { title: 'Introduction', href: '/' },
-      { title: 'Quickstart', href: '/dashboard/quickstart' },
-      { title: 'SDKs', href: '/dashboard/sdks' },
-      /*
-      { title: 'Authentication', href: '/authentication' },
-      { title: 'Pagination', href: '/pagination' },
-      { title: 'Errors', href: '/errors' },
-      { title: 'Webhooks', href: '/webhooks' },
-      */
-    ],
+    title: 'Pages',
+    links: [{ title: 'Dashboard', href: '/dashboard/admin' }],
   },
   {
     title: 'Resources',
-    links: [
-      { title: 'Agents', href: '/dashboard/admin/agents' },
-      { title: 'Customers', href: '/dashboard/admin/customers' },
-      { title: 'Dashboard', href: '/dashboard/admin' },
-      { title: 'Tags', href: '/dashboard/admin/tags' },
-      { title: 'Groups', href: '/groups' },
-      { title: 'Attachments', href: '/dashboard/attachments' },
-    ],
+    links: [{ title: 'Users', href: '/dashboard/admin/agents' }],
   },
 
   {

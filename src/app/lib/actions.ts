@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
 import { Organization, PrismaClient, User } from '@prisma/client';
+import { organizationStore } from '@/store/organization';
 
 //import { AuthError } from 'next-auth';
 //import { signIn } from '../../../auth';
@@ -16,11 +17,14 @@ const AgentFormSchema = z.object({
   agentName: z.string().min(1, {
     message: 'Please type in your first and last name.',
   }),
+  getOrganizationId: z.string().min(25, {
+    message: 'Please provide the id for the organization',
+  }),
   agentEmail: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  agentImgUrl: z.string(),
-  agentRole: z.enum(['admin', 'staff', 'team-lead'], {
+
+  agentRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
     invalid_type_error: 'Please select a role for this agent.',
   }),
 });
@@ -43,9 +47,6 @@ const OrganizationFormSchema = z.object({
 
 const CreateAgent = AgentFormSchema.omit({});
 const UpdateAgent = AgentFormSchema.omit({});
-
-const CreateCustomer = CustomerFormSchema.omit({});
-const UpdateCustomer = CustomerFormSchema.omit({});
 
 const CreateOrganization = OrganizationFormSchema.omit({});
 const updateOrganization = OrganizationFormSchema.omit({});
@@ -122,7 +123,7 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
     let orgOwnedByLoggedInUser = { org_id: activeOrgId };
 
     if (!activeOrgId) {
-      orgOwnedByLoggedInUser = await prisma.userToOrganization.findUnique({
+      orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
         where: {
           user_id: session?.user?.id,
           role_name: 'owner',
@@ -152,51 +153,28 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
   }
 }
 
-export async function createCustomer(
-  prevState: StateCustomer,
-  formData: FormData,
-) {
-  const validatedFields = CreateCustomer.safeParse({
-    customerName: formData.get('name'),
-    customerEmail: formData.get('email'),
-    customerImgUrl: '/customers/steph-dietz.png',
+export async function createAgent(prevState: StateAgent, formData: FormData) {
+  console.log(formData);
+
+  const session = await getServerSession(authOptions);
+  const orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
+    where: {
+      user_id: session?.user?.id,
+      role_name: 'owner',
+    },
+    select: {
+      org_id: true,
+    },
   });
 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to register Customer.',
-    };
-  }
-
-  const { customerName, customerEmail, customerImgUrl } = validatedFields.data;
-
-  try {
-    const customer = await prisma.customer.create({
-      data: {
-        name: customerName,
-        email: customerEmail,
-        password: '',
-        image_url: '',
-      },
-    });
-  } catch (error) {
-    return {
-      message: 'Database Error: Failed to register Customer.',
-    };
-  }
-
-  revalidatePath('/dashboard/admin/customers');
-  redirect('/dashboard/admin/customers');
-}
-
-export async function createAgent(prevState: StateAgent, formData: FormData) {
   const validatedFields = CreateAgent.safeParse({
     agentName: formData.get('name'),
     agentEmail: formData.get('email'),
-    agentImgUrl: '/agents/steven-tey-1.png',
     agentRole: formData.get('role'),
+    getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
+
+  console.log(validatedFields);
 
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
@@ -207,23 +185,26 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { agentName, agentEmail, agentImgUrl, agentRole } =
+  const { agentName, agentEmail, agentRole, getOrganizationId } =
     validatedFields.data;
 
+  console.log(validatedFields.data);
+
   try {
-    const agent = await prisma.agent.create({
+    const newUser: User = await prisma.user.create({
       data: {
         name: agentName,
         email: agentEmail,
-        password: '',
-        image_url: '',
-        role: agentRole,
+        userToOrganization: {
+          create: {
+            org_id: getOrganizationId,
+            role_name: agentRole,
+          },
+        },
       },
     });
   } catch (error) {
-    return {
-      message: 'Database Error: Failed to Agent.',
-    };
+    console.log(error);
   }
 
   revalidatePath('/dashboard/admin/agents');
@@ -308,67 +289,3 @@ export async function deleteCustomer(id: string) {
     };
   }
 }
-
-export async function updateCustomer(
-  id: string,
-  prevState: StateAgent,
-  formData: FormData,
-) {
-  // validate form using zod
-  const validatedFields = UpdateCustomer.safeParse({
-    customerName: formData.get('name'),
-    customerEmail: formData.get('email'),
-    customerImgUrl: '/agents/steven-tey-1.png',
-  });
-
-  // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
-    };
-  }
-
-  // Prepare data for insertion into the database
-  const { customerName, customerEmail } = validatedFields.data;
-
-  try {
-    const updateCustomer = await prisma.customer.update({
-      where: {
-        id: id,
-      },
-      data: {
-        name: customerName,
-        email: customerEmail,
-      },
-    });
-  } catch (error) {
-    return {
-      message: 'Database Error: Failed to update customer',
-    };
-  }
-
-  revalidatePath('/dashboard/admin/customers');
-  redirect('/dashboard/admin/customers');
-}
-
-/*
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
-  try {
-    await signIn('credentials', formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
-    }
-    throw error;
-  }
-}
-*/

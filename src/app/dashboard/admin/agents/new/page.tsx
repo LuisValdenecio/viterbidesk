@@ -7,6 +7,8 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 //@ts-ignore
 import { useFormState } from 'react-dom';
 import { Metadata } from 'next';
+import { useEffect, useState } from 'react';
+import { organizationStore } from '@/store/organization';
 
 const metadata: Metadata = {
   title: 'Add Customer',
@@ -17,6 +19,15 @@ const metadata: Metadata = {
 export default function Page() {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createAgent, initialState);
+
+  const activeOrganizationId = organizationStore(
+    (state: any) => state.activeOrganizationId,
+  );
+  const [activeOrgId, setActiveOrgId] = useState(activeOrganizationId);
+
+  useEffect(() => {
+    setActiveOrgId(activeOrganizationId);
+  }, [activeOrganizationId]);
 
   return (
     <form action={dispatch}>
@@ -139,7 +150,7 @@ export default function Page() {
                     <input
                       id="push-nothing"
                       name="role"
-                      value="admin"
+                      value="owner"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       aria-describedby="role-error"
@@ -150,7 +161,7 @@ export default function Page() {
                       htmlFor="comments"
                       className="font-medium text-gray-900 dark:text-gray-400"
                     >
-                      Admin
+                      Owner
                     </label>
                     <p className="text-gray-500 dark:text-gray-400">
                       System administrators have full access to configure
@@ -159,12 +170,18 @@ export default function Page() {
                   </div>
                 </div>
 
+                <div className="relative flex gap-x-3 hidden">
+                  <div className="flex h-6 items-center">
+                    <input name="org_id" value={activeOrgId} />
+                  </div>
+                </div>
+
                 <div className="relative flex gap-x-3">
                   <div className="flex h-6 items-center">
                     <input
                       id="push-nothing"
                       name="role"
-                      value="staff"
+                      value="admin"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       aria-describedby="role-error"
@@ -175,7 +192,7 @@ export default function Page() {
                       htmlFor="offers"
                       className="font-medium text-gray-900 dark:text-gray-400"
                     >
-                      Staff
+                      Admin
                     </label>
                     <p className="text-gray-500 dark:text-gray-400">
                       Get notified when a candidate accepts or rejects an offer.
@@ -187,7 +204,7 @@ export default function Page() {
                     <input
                       id="push-nothing"
                       name="role"
-                      value="team-lead"
+                      value="agent"
                       type="radio"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       aria-describedby="role-error"
@@ -198,7 +215,30 @@ export default function Page() {
                       htmlFor="offers"
                       className="font-medium text-gray-900 dark:text-gray-400"
                     >
-                      Team Lead
+                      Agent
+                    </label>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Get notified when a candidate accepts or rejects an offer.
+                    </p>
+                  </div>
+                </div>
+                <div className="relative flex gap-x-3">
+                  <div className="flex h-6 items-center">
+                    <input
+                      id="push-nothing"
+                      name="role"
+                      value="customer"
+                      type="radio"
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      aria-describedby="role-error"
+                    />
+                  </div>
+                  <div className="text-sm leading-6">
+                    <label
+                      htmlFor="offers"
+                      className="font-medium text-gray-900 dark:text-gray-400"
+                    >
+                      Customer
                     </label>
                     <p className="text-gray-500 dark:text-gray-400">
                       Get notified when a candidate accepts or rejects an offer.

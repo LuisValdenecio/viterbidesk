@@ -51,9 +51,6 @@ export default async function Page({
       />
       <Filter />
       <Agents query={query} currentPage={currentPage} />
-      <div className="flex justify-center">
-        <Pagination />
-      </div>
     </div>
   );
 }

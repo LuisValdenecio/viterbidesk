@@ -7,6 +7,7 @@ import { organizationStore } from '@/store/organization';
 import { fetchAgents } from '@/lib/data';
 import { UserSkeleton } from './Skeletons';
 import ResourceNotFound from './no-resource';
+import Pagination from './Pagination';
 
 const linkAndLabels: {
   href: string;
@@ -31,6 +32,7 @@ export default function Agents({
   const emptyArray: Array<any> = [];
   let users_copy: any = null;
   const [users, setUsers] = useState(emptyArray);
+  const [allPages, setAllPages] = useState(0);
 
   const activeOrgId = organizationStore(
     (state: any) => state.activeOrganizationId,
@@ -39,9 +41,8 @@ export default function Agents({
   useEffect(() => {
     const fetchData = async () => {
       users_copy = await fetchAgents(activeOrgId, query, currentPage);
-      console.log(query);
-      console.log(currentPage);
-      setUsers(users_copy);
+      setUsers(users_copy.users);
+      setAllPages(users_copy.totalUsers);
     };
 
     fetchData().catch((e) => {
@@ -54,6 +55,9 @@ export default function Agents({
       <Suspense fallback={<UserSkeleton />}>
         <GetAgentsData agents={users} />
       </Suspense>
+      <div className="flex justify-center">
+        <Pagination totalPages={allPages} />
+      </div>
     </>
   );
 }

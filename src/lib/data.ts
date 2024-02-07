@@ -85,9 +85,19 @@ export async function fetchAgents(
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    console.log('query:', query);
-    console.log('current page', currentPage);
-    return invoices;
+    const totalUsers = await prisma.$queryRaw`
+    SELECT count(*)
+    FROM users
+    JOIN users_to_organizations ON users.id = users_to_organizations.user_id
+    WHERE
+    users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
+    ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
+    `;
+
+    return {
+      users: invoices,
+      totalUsers: Math.ceil(Number(totalUsers[0]?.count) / ITEMS_PER_PAGE),
+    };
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch agent data.');

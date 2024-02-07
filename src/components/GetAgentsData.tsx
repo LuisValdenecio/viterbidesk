@@ -30,6 +30,8 @@ const GetAgentsData: React.FC<{
     setagentId(id);
   };
 
+  console.log(agents);
+
   return (
     <>
       <DeleteModal

@@ -9,34 +9,14 @@ import { useEffect, useState } from 'react';
 import { organizationStore } from '@/store/organization';
 import { fetchUsersPages } from '@/lib/data';
 
-export default function Pagination() {
+export default function Pagination({ totalPages }: { totalPages: number }) {
   // NOTE: comment in this code when you get to this point in the course
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get('page')) || 1;
 
-  let totalPagesCopy: any = null;
-  const [totalPages, setTotalPages] = useState(0);
-  const query = searchParams?.query || '';
-
   const allPages = generatePagination(currentPage, totalPages);
-
-  const activeOrgId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      totalPagesCopy = await fetchUsersPages(query, activeOrgId);
-      console.log(activeOrgId);
-      setTotalPages(totalPagesCopy);
-    };
-
-    fetchData().catch((e) => {
-      console.error('An error occured while fetching the data');
-    });
-  }, [activeOrgId, query]);
 
   const createPageURL = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams);

@@ -120,39 +120,3 @@ export async function fetchAgentById(id: string) {
     throw new Error('Failed to fetch agent.');
   }
 }
-
-export async function fetchUsersPages(query: string, activeOrgId: string) {
-  noStore();
-
-  const session = await getServerSession(authOptions);
-
-  try {
-    let orgOwnedByLoggedInUser = { org_id: activeOrgId };
-
-    if (!activeOrgId) {
-      orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
-        where: {
-          user_id: session?.user?.id,
-          role_name: 'owner',
-        },
-        select: {
-          org_id: true,
-        },
-      });
-    }
-
-    const totalUsers = await prisma.$queryRaw`SELECT count(*)
-    FROM users
-    INNER JOIN users_to_organizations ON users.id = users_to_organizations.user_id
-    WHERE
-    users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
-    ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
-  `;
-    console.log(query);
-    const totalPages = Math.ceil(Number(totalUsers[0]?.count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of users.');
-  }
-}

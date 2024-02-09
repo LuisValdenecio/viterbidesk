@@ -6,7 +6,10 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
 import { Organization, PrismaClient, User } from '@prisma/client';
+import { sendEmail } from '../../app/lib/email';
 import { organizationStore } from '@/store/organization';
+import { randomUUID } from 'crypto';
+import email from '@/app/lib/email';
 
 //import { AuthError } from 'next-auth';
 //import { signIn } from '../../../auth';
@@ -174,8 +177,6 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
 
-  console.log(validatedFields);
-
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -188,8 +189,6 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   const { agentName, agentEmail, agentRole, getOrganizationId } =
     validatedFields.data;
 
-  console.log(validatedFields.data);
-
   try {
     const newUser: User = await prisma.user.create({
       data: {
@@ -201,7 +200,28 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
             role_name: agentRole,
           },
         },
+        activateToken: {
+          create: {
+            token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ''),
+          },
+        },
       },
+    });
+
+    const userToken = await prisma.activateToken.findUnique({
+      where: {
+        user_id: newUser.id,
+      },
+      select: {
+        token: true,
+      },
+    });
+
+    await sendEmail({
+      to: agentEmail,
+      from: 'ls04af@gmail.com',
+      subject: 'Verify account',
+      message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
   } catch (error) {
     console.log(error);

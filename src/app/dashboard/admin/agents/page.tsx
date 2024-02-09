@@ -49,7 +49,6 @@ export default async function Page({
         btnAndLink={buttonLabelAndLink}
         mainTitle={{ title: 'Agents' }}
       />
-      <Filter />
       <Agents query={query} currentPage={currentPage} />
     </div>
   );

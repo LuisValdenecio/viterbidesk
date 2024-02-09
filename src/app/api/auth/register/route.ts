@@ -19,12 +19,18 @@ export async function POST(request: Request) {
       data: {
         name: name,
         email: email,
+        active: true,
         password: hashedPassword,
+        activateToken: {
+          create: {
+            token: 'randomToken',
+            activated: new Date(),
+          },
+        },
       },
     });
   } catch (e) {
     console.error({ e });
-  } finally {
   }
 
   return NextResponse.json({ message: 'success' });

@@ -49,14 +49,14 @@ export const handler = NextAuth({
           if (!user) return null;
           const passwordsMatch = await compare(password, user.password);
 
-          console.log('password correct!');
+          if (!user.active) {
+            throw new Error('User not activated');
+          }
 
           if (passwordsMatch) {
             return user;
           }
         }
-
-        console.log('Invalid credentials');
         return null;
       },
     }),

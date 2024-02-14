@@ -1,6 +1,11 @@
+'use server';
+
 import { PrismaClient } from '@prisma/client';
 import { NextRequest } from 'next/server';
 import { redirect } from 'next/navigation';
+import { getCsrfToken } from 'next-auth/react';
+import { authOptions } from '../../api/auth/[...nextauth]/[...nextauth]';
+import { getServerSession } from 'next-auth';
 
 const prisma = new PrismaClient();
 
@@ -9,6 +14,8 @@ export async function GET(
   { params }: { params: { token: string } },
 ) {
   const { token } = params;
+  const session = await getServerSession(authOptions);
+
   const user = await prisma.user.findFirst({
     where: {
       activateToken: {
@@ -51,5 +58,5 @@ export async function GET(
     },
   });
 
-  redirect('/setup');
+  redirect(`/setup/${token}`);
 }

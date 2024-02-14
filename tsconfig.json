@@ -29,7 +29,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/components/SimpleSearch.jsx",
-    "src/components/ProgressBar.tsx"
+    "src/components/ProgressBar.tsx",
+    "src/app/lib/email.ts"
   ],
   "exclude": ["node_modules"]
 }

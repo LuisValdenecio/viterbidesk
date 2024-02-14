@@ -6,20 +6,14 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
 import { Organization, PrismaClient, User } from '@prisma/client';
-import { sendEmail } from '../../app/lib/email';
+import { hash } from 'bcrypt';
+import { sendEmail } from './email';
 import { organizationStore } from '@/store/organization';
 import { randomUUID } from 'crypto';
-import email from '@/app/lib/email';
-
-//import { AuthError } from 'next-auth';
-//import { signIn } from '../../../auth';
 
 const prisma = new PrismaClient();
 
 const AgentFormSchema = z.object({
-  agentName: z.string().min(1, {
-    message: 'Please type in your first and last name.',
-  }),
   getOrganizationId: z.string().min(25, {
     message: 'Please provide the id for the organization',
   }),
@@ -30,16 +24,6 @@ const AgentFormSchema = z.object({
   agentRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
     invalid_type_error: 'Please select a role for this agent.',
   }),
-});
-
-const CustomerFormSchema = z.object({
-  customerName: z.string().min(1, {
-    message: 'Please type in the customers name',
-  }),
-  customerEmail: z.string().email({
-    message: 'Please enter a valid email address.',
-  }),
-  customerImgUrl: z.string(),
 });
 
 const OrganizationFormSchema = z.object({
@@ -61,15 +45,6 @@ export type StateAgent = {
     agentEmail?: string[];
     agentImgUrl?: string[];
     agentRole?: string[];
-  };
-  message?: string | null;
-};
-
-export type StateCustomer = {
-  errors?: {
-    customerName?: string[];
-    customerEmail?: string[];
-    customerImgUrl?: string[];
   };
   message?: string | null;
 };
@@ -157,8 +132,6 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
 }
 
 export async function createAgent(prevState: StateAgent, formData: FormData) {
-  console.log(formData);
-
   const session = await getServerSession(authOptions);
   const orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
     where: {
@@ -171,11 +144,12 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   });
 
   const validatedFields = CreateAgent.safeParse({
-    agentName: formData.get('name'),
     agentEmail: formData.get('email'),
     agentRole: formData.get('role'),
     getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
+
+  console.log(validatedFields.data);
 
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
@@ -186,13 +160,11 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { agentName, agentEmail, agentRole, getOrganizationId } =
-    validatedFields.data;
+  const { agentEmail, agentRole, getOrganizationId } = validatedFields.data;
 
   try {
     const newUser: User = await prisma.user.create({
       data: {
-        name: agentName,
         email: agentEmail,
         userToOrganization: {
           create: {
@@ -217,10 +189,10 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       },
     });
 
+    console.log('test');
+
     await sendEmail({
-      to: agentEmail,
-      from: 'ls04af@gmail.com',
-      subject: 'Verify account',
+      recipientEmail: agentEmail,
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
   } catch (error) {
@@ -253,8 +225,7 @@ export async function updateAgent(
   }
 
   // Prepare data for insertion into the database
-  const { agentName, agentEmail, agentImgUrl, agentRole } =
-    validatedFields.data;
+  const { agentEmail, agentRole } = validatedFields.data;
 
   try {
     const updateAgent = await prisma.user.update({
@@ -262,7 +233,6 @@ export async function updateAgent(
         id: id,
       },
       data: {
-        name: agentName,
         email: agentEmail,
       },
     });
@@ -293,19 +263,32 @@ export async function deleteAgent(id: string) {
   }
 }
 
-export async function deleteCustomer(id: string) {
+export async function setUpInvitation(
+  id: string,
+  prevState: StateAgent,
+  formData: FormData,
+) {
   try {
-    const deleteCustomer = await prisma.customer.delete({
+    const password = formData.get('password');
+    const userName = formData.get('name');
+
+    const hashedPassword = await hash(password as string, 10);
+
+    const updateUser = await prisma.user.update({
       where: {
         id: id,
       },
+      data: {
+        name: userName as string,
+        password: hashedPassword,
+      },
     });
-
-    revalidatePath('/dashboard/admin/agents');
-    return { message: 'Deleted Customer.' };
-  } catch (e) {
+  } catch (error) {
     return {
-      message: 'Database Error: Failed to delete customer',
+      message: 'Database Error: Failed to set up user',
     };
   }
+
+  revalidatePath('/login');
+  redirect('/login');
 }

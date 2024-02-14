@@ -30,8 +30,6 @@ const GetAgentsData: React.FC<{
     setagentId(id);
   };
 
-  console.log(agents);
-
   return (
     <>
       <DeleteModal
@@ -56,9 +54,37 @@ const GetAgentsData: React.FC<{
               </span>
               <div className="min-w-0 flex-auto">
                 <p className="text-sm font-semibold leading-6 text-gray-900">
-                  <a href="/" className="hover:underline">
-                    {agent.name}
-                  </a>
+                  {agent.name && (
+                    <a href="/" className="hover:underline">
+                      {agent.name}
+                    </a>
+                  )}
+
+                  {!agent.name && (
+                    <span className="inline-flex items-center gap-x-0.5 rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                      Pending
+                      <button
+                        type="button"
+                        className="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-yellow-600/20"
+                      >
+                        <span className="sr-only">ticking clock</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          className="h-3.5 w-3.5 stroke-yellow-800 group-hover:stroke-yellow-700/75"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                          />
+                        </svg>
+
+                        <span className="absolute -inset-1" />
+                      </button>
+                    </span>
+                  )}
                 </p>
                 <p className="mt-1 flex text-xs leading-5 text-gray-500">
                   <a

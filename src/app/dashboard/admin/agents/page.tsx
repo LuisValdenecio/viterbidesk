@@ -1,12 +1,6 @@
-import { fetchAgents, fetchUsersPages } from '@/lib/data';
-import Pagination from '@/components/Pagination';
-import ResourceNotFound from '@/components/no-resource';
 import { Metadata } from 'next';
 import Agents from '@/components/Agents';
 import SectionHeading from '@/components/SectionHeading';
-import { Suspense } from 'react';
-import { UserSkeleton } from '@/components/Skeletons';
-import Filter from '@/components/Filter';
 
 export const metadata: Metadata = {
   title: 'Customers',

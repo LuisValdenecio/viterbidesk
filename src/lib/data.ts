@@ -120,3 +120,34 @@ export async function fetchAgentById(id: string) {
     throw new Error('Failed to fetch agent.');
   }
 }
+
+// create a method that fetches a user using their email
+export async function fetchUserInvitationToken(token: string) {
+  noStore();
+
+  try {
+    const user_id = await prisma.activateToken.findUnique({
+      where: {
+        token: token,
+      },
+      select: {
+        user_id: true,
+      },
+    });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: user_id?.user_id,
+      },
+      select: {
+        email: true,
+        id: true,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}

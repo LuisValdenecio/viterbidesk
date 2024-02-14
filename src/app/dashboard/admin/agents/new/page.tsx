@@ -44,44 +44,6 @@ export default function Page() {
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-2">
               <label
-                htmlFor="first-name"
-                className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400"
-              >
-                Name*
-              </label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="name"
-                  id="first-name"
-                  autoComplete="given-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  aria-describedby="name-error"
-                />
-              </div>
-
-              <div
-                className="flex h-8 items-end space-x-1"
-                id="name-error"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {state.errors?.agentName &&
-                  state.errors.agentName.map((error: string) => (
-                    <>
-                      <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                      <p className="mt-2 text-sm text-red-500" key={error}>
-                        {error}
-                      </p>
-                    </>
-                  ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-2">
-              <label
                 htmlFor="email"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400"
               >

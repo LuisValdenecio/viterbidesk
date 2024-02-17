@@ -203,6 +203,40 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   redirect('/dashboard/admin/agents');
 }
 
+export async function resendInvitation(id: string) {
+  try {
+    // fetch the user email and set to a constant named agentEmail
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        email: true,
+      },
+    });
+
+    // update the token associated with the user id to a new token
+    const newUserToken = await prisma.activateToken.update({
+      where: {
+        user_id: id,
+      },
+      data: {
+        token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ''),
+      },
+    });
+
+    await sendEmail({
+      recipientEmail: user?.email,
+      message: `Click link to verify : http://localhost:3000/activate/${newUserToken?.token}`,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+  revalidatePath('/dashboard/admin/agents');
+  redirect('/dashboard/admin/agents');
+}
+
 export async function updateAgent(
   id: string,
   prevState: StateAgent,

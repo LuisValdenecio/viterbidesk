@@ -8,6 +8,7 @@ import Link from 'next/link';
 import React, { Fragment, useRef, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
+import { resendInvitation } from '@/app/lib/actions';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 type agent_data = Agent[];
@@ -21,6 +22,13 @@ const GetAgentsData: React.FC<{
 }> = ({ agents }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentId, setagentId] = useState('');
+
+  async function resendInvitationFn(
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    userId: string,
+  ) {
+    await resendInvitation(userId);
+  }
 
   const openDialog = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -115,34 +123,42 @@ const GetAgentsData: React.FC<{
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-50' : '',
-                            'block px-3 py-1 text-sm leading-6 text-gray-900',
-                          )}
-                        >
-                          View profile
-                          <span className="sr-only">, {agent.name}</span>
-                        </Link>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link
-                          href={`/dashboard/admin/agents/${agent.id}/edit`}
-                          className={classNames(
-                            active ? 'bg-gray-50' : '',
-                            'block px-3 py-1 text-sm leading-6 text-gray-900',
-                          )}
-                        >
-                          Edit Profile
-                          <span className="sr-only">, {agent.name}</span>
-                        </Link>
-                      )}
-                    </Menu.Item>
+                    {agent.name && (
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            href="#"
+                            className={classNames(
+                              active ? 'bg-gray-50' : '',
+                              'block px-3 py-1 text-sm leading-6 text-gray-900',
+                            )}
+                          >
+                            View profile
+                            <span className="sr-only">, {agent.name}</span>
+                          </Link>
+                        )}
+                      </Menu.Item>
+                    )}
+
+                    {!agent.name && (
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            onClick={(event) =>
+                              resendInvitationFn(event, agent.id)
+                            }
+                            className={classNames(
+                              active ? 'bg-gray-50' : '',
+                              'block px-3 py-1 text-sm leading-6 text-gray-900',
+                            )}
+                          >
+                            Re-invite
+                            <span className="sr-only">, {agent.name}</span>
+                          </a>
+                        )}
+                      </Menu.Item>
+                    )}
+
                     <Menu.Item>
                       {({ active }) => (
                         <a

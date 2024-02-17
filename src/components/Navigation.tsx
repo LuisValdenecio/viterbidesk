@@ -12,6 +12,7 @@ import { useSectionStore } from '@/components/SectionProvider';
 import { Tag } from '@/components/Tag';
 import { remToPx } from '@/lib/remToPx';
 import SignedInUser from './SignedInUser';
+import NotificationSlideOver from './NotificationSlideOver';
 
 interface NavGroup {
   title: string;
@@ -249,6 +250,7 @@ export const navigation: Array<NavGroup> = [
 export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
   return (
     <>
+      <NotificationSlideOver />
       <nav {...props}>
         <ul role="list">
           <TopLevelNavItem href="/">API</TopLevelNavItem>

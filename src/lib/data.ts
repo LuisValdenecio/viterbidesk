@@ -14,11 +14,32 @@ export async function fetchCustomers() {
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
   noStore();
   try {
-    const customers = await prisma.customer.findMany();
+    const customers = await prisma.user.findMany();
     return customers;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch customer data.');
+  }
+}
+
+export async function fetchInvitationToken(token: string) {
+  noStore();
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  try {
+    const invitationToken = await prisma.activateToken.findUnique({
+      where: {
+        token: token,
+      },
+      select: {
+        activated: true,
+      },
+    });
+
+    return !invitationToken?.activated;
+  } catch (error) {
+    console.log(error);
   }
 }
 

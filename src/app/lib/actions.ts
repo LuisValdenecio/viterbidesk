@@ -265,6 +265,7 @@ export async function deleteAgent(id: string) {
 
 export async function setUpInvitation(
   id: string,
+  token: string,
   prevState: StateAgent,
   formData: FormData,
 ) {
@@ -274,13 +275,24 @@ export async function setUpInvitation(
 
     const hashedPassword = await hash(password as string, 10);
 
-    const updateUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         id: id,
       },
       data: {
+        active: true,
         name: userName as string,
         password: hashedPassword,
+      },
+    });
+
+    // only when the user setups up account set the date:
+    await prisma.activateToken.update({
+      where: {
+        token,
+      },
+      data: {
+        activated: new Date(),
       },
     });
   } catch (error) {

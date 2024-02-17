@@ -5,7 +5,6 @@ import { NextRequest } from 'next/server';
 import { redirect } from 'next/navigation';
 import { getCsrfToken } from 'next-auth/react';
 import { authOptions } from '../../api/auth/[...nextauth]/[...nextauth]';
-import { getServerSession } from 'next-auth';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +13,6 @@ export async function GET(
   { params }: { params: { token: string } },
 ) {
   const { token } = params;
-  const session = await getServerSession(authOptions);
 
   const user = await prisma.user.findFirst({
     where: {
@@ -37,26 +35,8 @@ export async function GET(
   });
 
   if (!user) {
-    throw new Error('Invalid token');
+    redirect('/invalidtoken');
   }
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      active: true,
-    },
-  });
-
-  await prisma.activateToken.update({
-    where: {
-      token,
-    },
-    data: {
-      activated: new Date(),
-    },
-  });
 
   redirect(`/setup/${token}`);
 }

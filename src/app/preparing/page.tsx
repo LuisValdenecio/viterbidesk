@@ -26,7 +26,7 @@ export default function Page() {
             <span className="sr-only">Loading...</span>
           </div>
           <div>
-            <h1 className="text-center">Preparing dashboard...</h1>
+            <h1 className="text-center">Preparing page...</h1>
           </div>
         </div>
       </div>

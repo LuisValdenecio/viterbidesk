@@ -29,11 +29,11 @@ export async function sendEmail({
   try {
     const sendEmailCommand = new SendEmailCommand(params);
     const res = await sesClient.send(sendEmailCommand);
-    console.log('Email has been sent!', res);
-
     return res;
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw error;
+    return {
+      message: 'Email was not delivered',
+      code: 500,
+    };
   }
 }

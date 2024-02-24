@@ -149,13 +149,11 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
 
-  console.log(validatedFields.data);
-
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
+      message: 'Missing Fields',
     };
   }
 
@@ -189,18 +187,20 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       },
     });
 
-    console.log('test');
-
-    await sendEmail({
+    const emailResult = await sendEmail({
       recipientEmail: agentEmail,
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
-  } catch (error) {
-    console.log(error);
-  }
 
-  revalidatePath('/dashboard/admin/agents');
-  redirect('/dashboard/admin/agents');
+    return {
+      message: 'All fields are valid',
+      emailResult: emailResult,
+    };
+  } catch (error) {
+    return {
+      message: 'Could not save user on the database',
+    };
+  }
 }
 
 export async function resendInvitation(id: string) {
@@ -225,7 +225,7 @@ export async function resendInvitation(id: string) {
       },
     });
 
-    await sendEmail({
+    const resendResult = await sendEmail({
       recipientEmail: user?.email,
       message: `Click link to verify : http://localhost:3000/activate/${newUserToken?.token}`,
     });

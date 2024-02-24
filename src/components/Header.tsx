@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 
 import { Fragment } from 'react';
@@ -19,6 +20,10 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { BellIcon } from '@heroicons/react/24/outline';
 import AdminLayoutMenu from './AdminLayoutMenu';
 import SignedInUser from './SignedInUser';
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 function TopLevelNavItem({
   href,
@@ -49,6 +54,7 @@ export const Header = forwardRef<
   let { scrollY } = useScroll();
   let bgOpacityLight = useTransform(scrollY, [0, 72], [0.5, 0.9]);
   let bgOpacityDark = useTransform(scrollY, [0, 72], [0.2, 0.8]);
+  const session = useSession();
 
   return (
     <motion.div
@@ -113,52 +119,60 @@ export const Header = forwardRef<
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white p-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={clsx(
-                            'block px-4 py-2 text-sm text-gray-700',
-                            {
-                              'bg-gray-100': active,
-                            },
-                          )}
-                        >
-                          Your Profile
-                        </a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={clsx(
-                            'block px-4 py-2 text-sm text-gray-700',
-                            {
-                              'bg-gray-100': active,
-                            },
-                          )}
-                        >
-                          Your Profile
-                        </a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={clsx(
-                            'block px-4 py-2 text-sm text-gray-700',
-                            {
-                              'bg-gray-100': active,
-                            },
-                          )}
-                        >
-                          Your Profile
-                        </a>
-                      )}
-                    </Menu.Item>
+                  <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="px-4 py-3">
+                      <p className="truncate text-sm font-medium text-gray-900">
+                        {session?.data?.user?.name}
+                      </p>
+                      <p className="text-sm">{session?.data?.user?.email}</p>
+                    </div>
+                    <div className="py-1">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
+                              'block px-4 py-2 text-sm',
+                            )}
+                          >
+                            Account settings
+                          </a>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
+                              'block px-4 py-2 text-sm',
+                            )}
+                          >
+                            Support
+                          </a>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
+                              'block px-4 py-2 text-sm',
+                            )}
+                          >
+                            License
+                          </a>
+                        )}
+                      </Menu.Item>
+                    </div>
                     <Menu.Item>
                       {({ active }) => (
                         <button
@@ -170,7 +184,7 @@ export const Header = forwardRef<
                             },
                           )}
                         >
-                          Log out
+                          Sign Out
                         </button>
                       )}
                     </Menu.Item>

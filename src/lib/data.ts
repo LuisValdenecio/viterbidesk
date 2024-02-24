@@ -50,7 +50,7 @@ export async function fetchOrganizations() {
 
   try {
     const organizations = await prisma.$queryRaw`
-    SELECT organizations.name, organizations.id
+    SELECT organizations.name, organizations.id, users_to_organizations.role_name
     FROM organizations
     INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
     WHERE users_to_organizations.user_id = ${session?.user?.id};

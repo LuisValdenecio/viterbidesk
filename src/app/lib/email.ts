@@ -1,4 +1,5 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'; // ES Modules import
+import { ActivateToken, PrismaClient } from '@prisma/client';
 
 const SES_CONFIG: any = {
   credentials: {
@@ -9,12 +10,15 @@ const SES_CONFIG: any = {
 };
 
 const sesClient = new SESClient(SES_CONFIG);
+const prisma = new PrismaClient();
 
 export async function sendEmail({
   recipientEmail,
+  userId,
   message,
 }: {
   recipientEmail: string;
+  userId: string;
   message: string;
 }) {
   const params = {
@@ -29,6 +33,17 @@ export async function sendEmail({
   try {
     const sendEmailCommand = new SendEmailCommand(params);
     const res = await sesClient.send(sendEmailCommand);
+
+    // set the emailSent field on active_tokens table to true
+    await prisma.activateToken.update({
+      where: {
+        user_id: userId,
+      },
+      data: {
+        email_sent: true,
+      },
+    });
+
     return res;
   } catch (error) {
     return {

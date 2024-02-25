@@ -161,6 +161,22 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   const { agentEmail, agentRole, getOrganizationId } = validatedFields.data;
 
   try {
+    // write a prsima query to search for a user with the agentEmail
+    const isEmailRepeated: User = await prisma.user.findUnique({
+      where: {
+        email: agentEmail,
+      },
+      select: {
+        email: true,
+      },
+    });
+
+    if (isEmailRepeated?.email) {
+      return {
+        message: 'Email already exists on the system',
+      };
+    }
+
     const newUser: User = await prisma.user.create({
       data: {
         email: agentEmail,
@@ -189,6 +205,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
 
     const emailResult = await sendEmail({
       recipientEmail: agentEmail,
+      userId: newUser.id,
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
 
@@ -197,8 +214,9 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       emailResult: emailResult,
     };
   } catch (error) {
+    console.log(error);
     return {
-      message: 'Could not save user on the database',
+      message: 'Database Error',
     };
   }
 }
@@ -288,7 +306,8 @@ export async function deleteAgent(id: string) {
       },
     });
 
-    revalidatePath('/admin/agents');
+    revalidatePath('/dashboard/admin/agents');
+    redirect('/dashboard/admin/agents');
     return { message: 'Deleted agent.' };
   } catch (e) {
     return {

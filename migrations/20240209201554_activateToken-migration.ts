@@ -4,6 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('activate_tokens', (table) => {
     table.string('id', 25).primary();
     table.string('token', 255).notNullable();
+    table.boolean('email_sent').defaultTo(false);
     table.timestamp('activated');
 
     table.string('user_id', 25).notNullable();

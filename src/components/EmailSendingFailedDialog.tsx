@@ -51,6 +51,11 @@ export default function EmailSendingFailedDialog({
                     >
                       Operation failed
                     </Dialog.Title>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        We couldn't send the email invitation
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse gap-2">

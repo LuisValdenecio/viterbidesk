@@ -68,29 +68,15 @@ const GetAgentsData: React.FC<{
                     </a>
                   )}
 
-                  {!agent.name && (
-                    <span className="inline-flex items-center gap-x-0.5 rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-                      Pending
-                      <button
-                        type="button"
-                        className="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-yellow-600/20"
-                      >
-                        <span className="sr-only">ticking clock</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          className="h-3.5 w-3.5 stroke-yellow-800 group-hover:stroke-yellow-700/75"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                          />
-                        </svg>
+                  {agent.email_sent && (
+                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                      Invitation sent
+                    </span>
+                  )}
 
-                        <span className="absolute -inset-1" />
-                      </button>
+                  {!agent.email_sent && agent.role_name !== 'owner' && (
+                    <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                      Invitation failed
                     </span>
                   )}
                 </p>

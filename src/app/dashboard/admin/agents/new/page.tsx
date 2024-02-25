@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { organizationStore } from '@/store/organization';
 import EmailSentDialog from '@/components/EmailSentDialog';
 import EmailSendingFailedDialog from '@/components/EmailSendingFailedDialog';
+import EmailRepeatedOnTheDb from '@/components/EmailRepeatedDialog';
 
 const metadata: Metadata = {
   title: 'Add Customer',
@@ -37,6 +38,7 @@ export default function Page() {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createAgent, initialState);
   const [pendingFormState, setPendingState] = useState(false);
+  const [showRepeatedEmail, setRepeatedEmail] = useState(false);
   const [showSuccessEmailDialog, setSuccessfulEmailSentDialog] =
     useState(false);
   const [showFailureEmailDialog, setFailureEmailDialog] = useState(false);
@@ -75,6 +77,15 @@ export default function Page() {
     } else {
       setFailureEmailDialog(false);
     }
+
+    if (
+      state.message &&
+      state.message === 'Email already exists on the system'
+    ) {
+      setRepeatedEmail(true);
+    } else {
+      setRepeatedEmail(false);
+    }
   }, [pendingFormState, state]);
 
   return (
@@ -86,6 +97,10 @@ export default function Page() {
 
         {showFailureEmailDialog && (
           <EmailSendingFailedDialog openValue={showFailureEmailDialog} />
+        )}
+
+        {showRepeatedEmail && (
+          <EmailRepeatedOnTheDb openValue={showRepeatedEmail} />
         )}
 
         <div className="space-y-12">

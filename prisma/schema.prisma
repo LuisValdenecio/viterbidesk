@@ -28,6 +28,7 @@ model User {
 model ActivateToken {
   id String @id @default(cuid())
   token String @unique
+  email_sent Boolean @default(false)
   activated DateTime?
   
   createdAt DateTime @default(now())

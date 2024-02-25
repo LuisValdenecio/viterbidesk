@@ -96,9 +96,11 @@ export async function fetchAgents(
         users.id,
         users.name,
         users.email,
-        users_to_organizations.role_name
+        users_to_organizations.role_name,
+        activate_tokens.email_sent
       FROM users
       JOIN users_to_organizations ON users.id = users_to_organizations.user_id
+      JOIN activate_tokens ON users.id = activate_tokens.user_id
       WHERE
       users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
       ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
@@ -114,6 +116,8 @@ export async function fetchAgents(
     users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
     ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
     `;
+
+    console.log(invoices);
 
     return {
       users: invoices,

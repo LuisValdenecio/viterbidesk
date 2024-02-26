@@ -245,14 +245,22 @@ export async function resendInvitation(id: string) {
 
     const resendResult = await sendEmail({
       recipientEmail: user?.email,
+      userId: id,
       message: `Click link to verify : http://localhost:3000/activate/${newUserToken?.token}`,
     });
+
+    if (resendResult?.message === 'Email was not delivered') {
+      return {
+        message: 'Email was not delivered',
+      };
+    }
+
+    return {
+      message: 'Email resent sucessfully',
+    };
   } catch (error) {
     console.log(error);
   }
-
-  revalidatePath('/dashboard/admin/agents');
-  redirect('/dashboard/admin/agents');
 }
 
 export async function updateAgent(

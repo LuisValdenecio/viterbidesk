@@ -2,13 +2,18 @@ import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { Button } from './Button';
 
-export default function EmailSentDialog({ openValue }: { openValue: boolean }) {
-  const [open, setOpen] = useState(openValue);
-
+export default function EmailResendDialog({
+  open,
+  close,
+}: {
+  open: boolean;
+  close: any;
+}) {
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog as="div" className="relative z-50" onClose={close}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -49,18 +54,18 @@ export default function EmailSentDialog({ openValue }: { openValue: boolean }) {
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        An email invitation was sent to the user
+                        A new email invitation was sent to the user
                       </p>
                     </div>
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6">
-                  <Link
-                    href={'/dashboard/admin/agents'}
+                  <Button
+                    onClick={close}
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
-                    See Agents
-                  </Link>
+                    Close
+                  </Button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

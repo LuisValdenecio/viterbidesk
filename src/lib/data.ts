@@ -117,8 +117,6 @@ export async function fetchAgents(
     ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
     `;
 
-    console.log(invoices);
-
     return {
       users: invoices,
       totalUsers: Math.ceil(Number(totalUsers[0]?.count) / ITEMS_PER_PAGE),

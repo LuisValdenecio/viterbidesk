@@ -34,17 +34,28 @@ export async function sendEmail({
     const sendEmailCommand = new SendEmailCommand(params);
     const res = await sesClient.send(sendEmailCommand);
 
-    // set the emailSent field on active_tokens table to true
-    await prisma.activateToken.update({
-      where: {
-        user_id: userId,
-      },
-      data: {
-        email_sent: true,
-      },
-    });
+    if (res['$metadata']?.httpStatusCode !== 200) {
+      return {
+        message: 'Email was not delivered',
+        code: 500,
+      };
+    } else {
+      console.log('survived');
+      console.log(userId);
 
-    return res;
+      await prisma.activateToken.update({
+        where: {
+          user_id: userId,
+        },
+        data: {
+          email_sent: true,
+        },
+      });
+
+      return {
+        message: 'Email was delivered',
+      };
+    }
   } catch (error) {
     return {
       message: 'Email was not delivered',

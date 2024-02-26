@@ -20,6 +20,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { BellIcon } from '@heroicons/react/24/outline';
 import AdminLayoutMenu from './AdminLayoutMenu';
 import SignedInUser from './SignedInUser';
+import TestDialog from './TestDialog';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');

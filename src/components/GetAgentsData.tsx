@@ -10,6 +10,14 @@ import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
 import { resendInvitation } from '@/app/lib/actions';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
+import EmailResendDialog from './EmailResentDialog';
+import EmailResendFailedDialog from './EmailResendFailedDialog';
+import { Progress } from 'rsup-progress';
+
+const progress = new Progress({
+  height: 3,
+  color: 'linear-gradient(to right, #00f260, #0575e6)',
+});
 
 type agent_data = Agent[];
 
@@ -22,12 +30,26 @@ const GetAgentsData: React.FC<{
 }> = ({ agents }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentId, setagentId] = useState('');
+  const [showFailedResendlDialog, setResendFailedDialog] = useState(false);
+  const [showSuccessEmailDialog, setSuccessfulEmailSentDialog] =
+    useState(false);
 
   async function resendInvitationFn(
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     userId: string,
   ) {
-    await resendInvitation(userId);
+    progress.start();
+    const result = await resendInvitation(userId).then((res) => {
+      progress.end();
+
+      if (res?.message === 'Email resent sucessfully') {
+        setSuccessfulEmailSentDialog(true);
+      }
+
+      if (res?.message === 'Email was not delivered') {
+        setResendFailedDialog(true);
+      }
+    });
   }
 
   const openDialog = (
@@ -45,6 +67,16 @@ const GetAgentsData: React.FC<{
         agentId={agentId}
         userType="Agent"
         close={() => setIsDialogOpen(false)}
+      />
+
+      <EmailResendDialog
+        open={showSuccessEmailDialog}
+        close={() => setSuccessfulEmailSentDialog(false)}
+      />
+
+      <EmailResendFailedDialog
+        open={showFailedResendlDialog}
+        close={() => setResendFailedDialog(false)}
       />
 
       <ul role="list" className="divide-y divide-gray-100">
@@ -68,7 +100,7 @@ const GetAgentsData: React.FC<{
                     </a>
                   )}
 
-                  {agent.email_sent && (
+                  {agent.email_sent && !agent.name && (
                     <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
                       Invitation sent
                     </span>
@@ -130,8 +162,8 @@ const GetAgentsData: React.FC<{
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            onClick={(event) =>
-                              resendInvitationFn(event, agent.id)
+                            onClick={async (event) =>
+                              await resendInvitationFn(event, agent.id)
                             }
                             className={classNames(
                               active ? 'bg-gray-50' : '',

@@ -58,11 +58,7 @@ export default function Page() {
 
   useEffect(() => {
     console.log(state);
-    if (
-      state.message &&
-      state.message === 'All fields are valid' &&
-      state.emailResult['$metadata']?.httpStatusCode === 200
-    ) {
+    if (state.message && state.message === 'Email was delivered') {
       setSuccessfulEmailSentDialog(true);
     } else {
       setSuccessfulEmailSentDialog(false);

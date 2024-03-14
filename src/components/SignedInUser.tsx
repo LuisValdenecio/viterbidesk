@@ -20,6 +20,8 @@ import { useSession } from 'next-auth/react';
 import { organizationStore } from '@/store/organization';
 import { ArrowDownIcon } from '@heroicons/react/24/solid';
 import OrganizationModal from './OrganizationModal';
+import { useSearchParams } from 'next/navigation';
+import ConfirmationBanner from './Banner';
 
 const recentPosts = [
   {
@@ -33,18 +35,22 @@ const recentPosts = [
 
 export default function SignedInUser() {
   let organizations: Array<any> = [];
-  const setActiveOrg = organizationStore((state: any) => state.setActiveOrg);
 
   const [data, setData] = useState(organizations);
-  const activeOrgId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
+  const [showChangedOrgModal, setShowChangedOrgModal] = useState(false);
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams);
 
   const [isEmailDialogOpen, openEmailDialog] = useState(false);
 
   const openDialog = () => {
     openEmailDialog(true);
   };
+
+  useEffect(() => {
+    openEmailDialog(false); // run every time the organisation param changes
+    setShowChangedOrgModal(true);
+  }, [params.get('organisation')]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,10 +68,12 @@ export default function SignedInUser() {
       <button
         onClick={() => openDialog()}
         type="button"
-        className="inline-flex items-center gap-x-1 rounded-md bg-gray-600 px-2 py-0.5 text-sm  text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
-        Organizations
-        <ArrowDownIcon className="-mr-0.4 h-4 w-4" aria-hidden="true" />
+        My organizations
+        <span className="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">
+          {data.length}
+        </span>
       </button>
 
       <OrganizationModal

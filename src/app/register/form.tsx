@@ -37,7 +37,7 @@ export default function Form() {
       });
 
       if (!signInResponse?.error) {
-        router.push('/organizations/new');
+        router.push('/organisation/new');
         router.refresh();
       } else {
         console.log('auto-login failed');

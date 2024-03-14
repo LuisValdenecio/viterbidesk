@@ -1,8 +1,11 @@
-import { deleteAgent, deleteCustomer } from '../app/lib/actions';
+'use client';
 
-import React, { Fragment, useRef, useState } from 'react';
+import { deleteAgent } from '../app/lib/actions';
+
+import React, { Fragment, useContext, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
 
 const DeleteModal: React.FC<{
   open: boolean;
@@ -12,12 +15,16 @@ const DeleteModal: React.FC<{
 }> = ({ open, close, agentId, userType }) => {
   //const [open, setOpen] = useState(true)
   const cancelButtonRef = useRef(null);
+  const activeOrg = useContext(OrganizationContext);
+
   let deleteUserWithId = null;
 
   if (userType == 'Agent') {
-    deleteUserWithId = deleteAgent.bind(null, agentId);
-  } else {
-    deleteUserWithId = deleteCustomer.bind(null, agentId);
+    deleteUserWithId = deleteAgent.bind(
+      null,
+      agentId,
+      activeOrg?.organizationId,
+    );
   }
 
   return (

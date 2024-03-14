@@ -5,6 +5,8 @@ import { DashboardLayout } from '../../components/Layout';
 
 import { type Metadata } from 'next';
 import { type Section } from '@/components/SectionProvider';
+import Banner from '@/components/Banner';
+import { OrganizationProvider } from './activeOrganizationProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +32,11 @@ export default async function Layout({
   return (
     <Providers>
       <div className="w-full">
-        <DashboardLayout allSections={allSections}>{children}</DashboardLayout>
+        <OrganizationProvider>
+          <DashboardLayout allSections={allSections}>
+            {children}
+          </DashboardLayout>
+        </OrganizationProvider>
       </div>
     </Providers>
   );

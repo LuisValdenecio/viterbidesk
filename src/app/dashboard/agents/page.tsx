@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 };
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Agents', href: '/dashboard/admin/agents' },
-  { name: 'Tickering', href: '/dashboard/admin/agents/tickering' },
-  { name: 'Settings', href: '/dashboard/admin/agents/settings' },
+  { name: 'Agents', href: '/dashboard/agents' },
+  { name: 'Tickering', href: '/dashboard/agents/tickering' },
+  { name: 'Settings', href: '/dashboard/agents/settings/' },
 ];
 
 const buttonLabelAndLink: {
@@ -21,7 +21,7 @@ const buttonLabelAndLink: {
   buttonLabel: 'agents.cvs',
   link: {
     label: 'Add Agent',
-    url: '/dashboard/admin/agents/new',
+    url: '/dashboard/agents/new',
   },
 };
 
@@ -37,11 +37,11 @@ export default async function Page({
   const currentPage = Number(searchParams?.page) || 1;
 
   return (
-    <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
+    <div className="">
       <SectionHeading
         tabs={tabs}
-        btnAndLink={buttonLabelAndLink}
         mainTitle={{ title: 'Agents' }}
+        btnAndLink={buttonLabelAndLink}
       />
       <Agents query={query} currentPage={currentPage} />
     </div>

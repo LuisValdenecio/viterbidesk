@@ -1,14 +1,13 @@
 import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 
-export default function EmailSentDialog({ openValue }: { openValue: boolean }) {
-  const [open, setOpen] = useState(openValue);
+export default function TestDialog() {
+  const [open, setOpen] = useState(true);
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -18,7 +17,7 @@ export default function EmailSentDialog({ openValue }: { openValue: boolean }) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-zinc-400/25 backdrop-blur-sm dark:bg-black/40" />
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -45,22 +44,24 @@ export default function EmailSentDialog({ openValue }: { openValue: boolean }) {
                       as="h3"
                       className="text-base font-semibold leading-6 text-gray-900"
                     >
-                      Operation Succeded!
+                      Payment successful
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        An email invitation was sent to the user
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                        Consequatur amet labore.
                       </p>
                     </div>
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6">
-                  <Link
-                    href={'/dashboard/agents'}
+                  <button
+                    type="button"
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={() => setOpen(false)}
                   >
-                    See Agents
-                  </Link>
+                    Go back to dashboard
+                  </button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

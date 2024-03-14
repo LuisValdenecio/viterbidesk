@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 //@ts-ignore
 import { useFormStatus } from 'react-dom';
+import { fetchOrganizations } from '@/lib/data';
 
 export default function Form() {
   const [isThereAFormError, SetFormError] = useState(false);
@@ -29,7 +30,7 @@ export default function Form() {
     });
 
     if (!response?.error) {
-      router.push('/dashboard/admin');
+      router.push(`/dashboard`);
       router.refresh();
     } else {
       SetFormError(true);

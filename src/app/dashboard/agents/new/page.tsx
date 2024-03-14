@@ -8,11 +8,11 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { useFormState } from 'react-dom';
 import { Metadata } from 'next';
 import { useFormStatus } from 'react-dom';
-import { useEffect, useState } from 'react';
-import { organizationStore } from '@/store/organization';
+import { useContext, useEffect, useState } from 'react';
 import EmailSentDialog from '@/components/EmailSentDialog';
 import EmailSendingFailedDialog from '@/components/EmailSendingFailedDialog';
 import EmailRepeatedOnTheDb from '@/components/EmailRepeatedDialog';
+import { OrganizationContext } from '../../activeOrganizationProvider';
 
 const metadata: Metadata = {
   title: 'Add Customer',
@@ -43,22 +43,15 @@ export default function Page() {
     useState(false);
   const [showFailureEmailDialog, setFailureEmailDialog] = useState(false);
 
-  const activeOrganizationId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
-  const [activeOrgId, setActiveOrgId] = useState(activeOrganizationId);
-
   const handlePendingFormState = (childData: boolean) => {
     setPendingState(childData);
   };
 
-  useEffect(() => {
-    setActiveOrgId(activeOrganizationId);
-  }, [activeOrganizationId]);
+  const activeOrgId = useContext(OrganizationContext)?.organizationId;
 
   useEffect(() => {
     console.log(state);
-    if (state.message && state.message === 'Email was delivered') {
+    if (state.message && state.emailResult?.message === 'Email was delivered') {
       setSuccessfulEmailSentDialog(true);
     } else {
       setSuccessfulEmailSentDialog(false);

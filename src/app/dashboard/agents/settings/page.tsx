@@ -1,9 +1,9 @@
 import SectionHeading from '@/components/SectionHeading';
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Agents', href: '/dashboard/admin/agents' },
-  { name: 'Tickering', href: '/dashboard/admin/agents/tickering' },
-  { name: 'Settings', href: '/dashboard/admin/agents/settings' },
+  { name: 'Agents', href: '/dashboard/agents' },
+  { name: 'Tickering', href: '/dashboard/agents/tickering' },
+  { name: 'Settings', href: '/dashboard/agents/settings' },
 ];
 
 const buttonLabelAndLink: {
@@ -20,11 +20,7 @@ const buttonLabelAndLink: {
 export default function Page() {
   return (
     <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
-      <SectionHeading
-        tabs={tabs}
-        btnAndLink={buttonLabelAndLink}
-        mainTitle={{ title: 'Agents' }}
-      />
+      <SectionHeading tabs={tabs} btnAndLink={buttonLabelAndLink} />
       <h1>Settings</h1>
     </div>
   );

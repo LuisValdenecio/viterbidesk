@@ -1,18 +1,20 @@
 'use client';
 
-import { Agent } from '@/lib/definitions';
 import GetAgentsData from './GetAgentsData';
-import { Suspense, useEffect, useState } from 'react';
-import { organizationStore } from '@/store/organization';
+import { Suspense, useContext, useEffect, useState } from 'react';
 import { fetchAgents } from '@/lib/data';
 import { UserSkeleton } from './Skeletons';
-import ResourceNotFound from './no-resource';
 import Pagination from './Pagination';
-import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { ChevronDownIcon, FunnelIcon } from '@heroicons/react/20/solid';
+import { Disclosure, Menu } from '@headlessui/react';
+import { FunnelIcon } from '@heroicons/react/20/solid';
 import UserSearch from '@/components/UserSearch';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import SimpleSearchAgent from '@/components/SimpleSearchAgent';
+import { ArrowUpIcon } from '@heroicons/react/20/solid';
 import { useDebouncedCallback } from 'use-debounce';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
 
 const filters = {
   users: [
@@ -23,19 +25,6 @@ const filters = {
   ],
 };
 
-const linkAndLabels: {
-  href: string;
-  label: string;
-  mainTitle: string;
-  mainText: string;
-} = {
-  href: '/dashboard/admin/agents/new',
-  label: 'add agent',
-  mainTitle: 'Oops! No Agents Found',
-  mainText:
-    'Looks like there are no registered agents in the system at the moment.',
-};
-
 export default function Agents({
   query,
   currentPage,
@@ -44,23 +33,26 @@ export default function Agents({
   currentPage: number;
 }) {
   const emptyArray: Array<any> = [];
-  let users_copy: any = null;
+  let allUsers: any = null;
   const [users, setUsers] = useState(emptyArray);
+  const [allFetchedUsers, setAllUsers] = useState(emptyArray);
   const [allPages, setAllPages] = useState(0);
   const [filterUserRole, setFilterUserRole] = useState('');
+  const session = useSession();
   const pathname = usePathname();
   const { replace } = useRouter();
 
+  // context might replace the all url-state stuff
+  const activeOrg = useContext(OrganizationContext)?.organizationId;
+
+  let initialEmails: string[] = [];
+
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
-
-  const activeOrgId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
+  const [isEmailDialogOpen, openEmailDialog] = useState(false);
+  const [emailInvitations, setEmailInvitations] = useState(initialEmails);
 
   const handleUserRoleUpdate = useDebouncedCallback((value: string) => {
-    console.log(value);
-    const params = new URLSearchParams(searchParams);
     if (value) {
       params.set('role', value);
     } else {
@@ -71,9 +63,11 @@ export default function Agents({
 
   useEffect(() => {
     const fetchData = async () => {
-      users_copy = await fetchAgents(activeOrgId, query, currentPage);
-      setUsers(users_copy.users);
-      setAllPages(users_copy.totalUsers);
+      allUsers = await fetchAgents(activeOrg, query, currentPage);
+      setUsers(allUsers.users);
+      setAllUsers(allUsers.allUsers);
+      setAllPages(allUsers.totalUsers);
+      console.log(allFetchedUsers);
     };
 
     fetchData().catch((e) => {
@@ -81,11 +75,24 @@ export default function Agents({
     });
 
     params.set('role', filterUserRole);
-  }, [activeOrgId, query, currentPage, filterUserRole]);
+  }, [activeOrg, query, currentPage, filterUserRole]);
+
+  const openDialog = () => {
+    openEmailDialog(true);
+  };
+
+  const handleDataFromInvitationDialog = (data: string[]) => {
+    setEmailInvitations(data);
+  };
 
   return (
     <>
-      <div className="bg-white">
+      <SimpleSearchAgent
+        open={isEmailDialogOpen}
+        parentCallBack={handleDataFromInvitationDialog}
+        close={() => openEmailDialog(false)}
+      />
+      <div className="bg-white flex justify-between">
         {/* Filters */}
         <Disclosure
           as="section"
@@ -95,7 +102,7 @@ export default function Agents({
           <h2 id="filter-heading" className="sr-only">
             Filters
           </h2>
-          <div className="relative col-start-1 row-start-1 py-2">
+          <div className="relative col-start-1 row-start-1 py-10">
             <div className="mx-auto flex max-w-7xl space-x-6 divide-x divide-gray-200 text-sm">
               <div>
                 <Disclosure.Button className="group flex items-center font-medium text-gray-700">
@@ -107,13 +114,17 @@ export default function Agents({
                 </Disclosure.Button>
               </div>
               <div className="pl-6">
-                <button type="button" className="text-gray-500">
-                  Clear all
-                </button>
+                <div className="col-start-1 row-start-1">
+                  <div className="mx-auto flex max-w-7xl justify-end  ">
+                    <Menu as="div" className="relative inline-block">
+                      <UserSearch placeholder="search for user..." />
+                    </Menu>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <Disclosure.Panel className="border-t border-gray-200 py-10">
+          <Disclosure.Panel className="py-8">
             <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 px-4 text-sm sm:px-6 md:gap-x-6 lg:px-8">
               <div className="grid auto-rows-min grid-cols-1 gap-y-10 md:grid-cols-2 md:gap-x-6">
                 <fieldset>
@@ -148,17 +159,37 @@ export default function Agents({
               </div>
             </div>
           </Disclosure.Panel>
-          <div className="col-start-1 row-start-1 py-4">
-            <div className="mx-auto flex max-w-7xl justify-end  ">
-              <Menu as="div" className="relative inline-block">
-                <UserSearch placeholder="search for user..." />
-              </Menu>
+        </Disclosure>
+        {allFetchedUsers.filter(
+          (agent) =>
+            agent.id === session.data?.user?.id && agent.role_name === 'owner',
+        ).length !== 0 && (
+          <div className="col-start-1 row-start-1 py-10">
+            <div className="mx-auto flex max-w-7xl justify-end">
+              <button
+                onClick={() => openDialog()}
+                type="button"
+                className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              >
+                <ArrowUpIcon
+                  className="-ml-0.5 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+                agents.csv
+              </button>
+
+              <Link
+                href="/dashboard/agents/new"
+                className="ml-3 cursor-pointer inline-flex items-center rounded-md bg-indigo-600 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Add agent
+              </Link>
             </div>
           </div>
-        </Disclosure>
+        )}
       </div>
       <Suspense fallback={<UserSkeleton />}>
-        <GetAgentsData agents={users} />
+        <GetAgentsData agents={users} allUsers={allFetchedUsers} />
       </Suspense>
       <div className="flex justify-center">
         <Pagination totalPages={allPages} />

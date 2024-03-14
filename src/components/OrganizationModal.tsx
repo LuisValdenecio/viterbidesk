@@ -1,21 +1,17 @@
-import { Fragment, useState } from 'react';
+'use client';
+
+import { Fragment, useState, useContext, useEffect } from 'react';
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/20/solid';
-import { organizationStore } from '@/store/organization';
+import { useRouter } from 'next/navigation';
 import {
-  CalendarIcon,
-  CodeBracketIcon,
-  DocumentIcon,
   ExclamationCircleIcon,
-  LinkIcon,
-  PencilSquareIcon,
-  PhotoIcon,
-  TableCellsIcon,
-  VideoCameraIcon,
   ViewColumnsIcon,
-  Bars4Icon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
+import { getActiveOrgCookie } from '@/app/lib/actions';
 
 function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ');
@@ -23,20 +19,14 @@ function classNames(...classes: (string | boolean)[]) {
 
 export default function OrganizationModal({ open, close, orgs }) {
   const [query, setQuery] = useState('');
-  const setActiveOrg = organizationStore((state: any) => state.setActiveOrg);
-  const activeOrgId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
 
-  console.log(activeOrgId);
-  console.log(orgs[0]);
-
-  //const [open, setOpen] = useState(true)
+  // context might replace the all url-state stuff
+  const activeOrg = useContext(OrganizationContext);
 
   const filteredItems =
     query === ''
       ? orgs
-      : orgs.filter((item) => {
+      : orgs.filter((item: any) => {
           return item.name.toLowerCase().includes(query.toLowerCase());
         });
 
@@ -93,7 +83,9 @@ export default function OrganizationModal({ open, close, orgs }) {
                       <Combobox.Option
                         key={item.id}
                         value={item}
-                        onClick={() => setActiveOrg(item.id)}
+                        onClick={() => {
+                          activeOrg.setOrganizationId(item.id);
+                        }}
                         className={({ active }) =>
                           classNames(
                             'flex cursor-pointer select-none rounded-xl p-3',
@@ -134,26 +126,7 @@ export default function OrganizationModal({ open, close, orgs }) {
                               </p>
                             </div>
 
-                            {!activeOrgId && indx === 0 && (
-                              <div className="flex items-center">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="green"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m4.5 12.75 6 6 9-13.5"
-                                  />
-                                </svg>
-                              </div>
-                            )}
-
-                            {item.id === activeOrgId && (
+                            {item.id === activeOrg.organizationId && (
                               <div className="flex items-center">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +198,7 @@ export default function OrganizationModal({ open, close, orgs }) {
                       again.
                     </p>
                     <Link
-                      href="/organizations/new"
+                      href="/organisation/new"
                       className="rounded bg-indigo-500 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                     >
                       New organization

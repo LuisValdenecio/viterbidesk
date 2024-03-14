@@ -11,8 +11,6 @@ import { useIsInsideMobileNavigation } from '@/components/MobileNavigation';
 import { useSectionStore } from '@/components/SectionProvider';
 import { Tag } from '@/components/Tag';
 import { remToPx } from '@/lib/remToPx';
-import SignedInUser from './SignedInUser';
-import NotificationSlideOver from './NotificationSlideOver';
 
 interface NavGroup {
   title: string;
@@ -234,23 +232,32 @@ function NavigationGroup({
 export const navigation: Array<NavGroup> = [
   {
     title: 'Pages',
-    links: [{ title: 'Dashboard', href: '/dashboard/admin' }],
-  },
-  {
-    title: 'Resources',
-    links: [{ title: 'Users', href: '/dashboard/admin/agents' }],
+    links: [
+      { title: 'Analytics', href: '/dashboard/analytics' },
+      { title: 'AI Marketplace', href: '/dashboard/marketplace' },
+      { title: 'API', href: '/dashboard/api' },
+      { title: 'Dashboard', href: '/dashboard' },
+      { title: 'Logs', href: '/dashboard/logs' },
+      { title: 'Users', href: '/dashboard/agents' },
+    ],
   },
 
   {
-    title: 'Settings',
-    links: [{ title: 'Billing', href: '/dashboard/admin/billing' }],
+    title: 'Articles',
+    links: [
+      { title: 'All articles', href: '/dashboard/billing' },
+      { title: 'Archived', href: '/dashboard/billing' },
+      { title: 'Drafts', href: '/dashboard/billing' },
+      { title: 'Glossary', href: '/dashboard/billing' },
+      { title: 'Published', href: '/dashboard/billing' },
+      { title: 'Templates', href: '/dashboard/billing' },
+    ],
   },
 ];
 
 export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
   return (
     <>
-      <NotificationSlideOver />
       <nav {...props}>
         <ul role="list">
           <TopLevelNavItem href="/">API</TopLevelNavItem>

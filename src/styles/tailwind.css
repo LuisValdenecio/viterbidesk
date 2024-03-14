@@ -37,3 +37,7 @@ html {
   gap: 100px;
   grid-template-columns: 1fr 4fr;
 }
+
+.full-width {
+  width: 100%;
+}

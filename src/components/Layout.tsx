@@ -10,6 +10,7 @@ import { Logo } from '@/components/Logo';
 import { Navigation } from '@/components/Navigation';
 import { type Section, SectionProvider } from '@/components/SectionProvider';
 import { SessionProvider } from 'next-auth/react';
+import Banner from './Banner';
 
 export function DashboardLayout({
   children,
@@ -39,7 +40,9 @@ export function DashboardLayout({
             </div>
           </motion.header>
           <div className="relative flex h-full flex-col px-4 pt-14 sm:px-6 lg:px-8">
-            <main className="flex-auto">{children}</main>
+            <div className="mx-auto mt-16 w-full max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
+              <main className="flex-auto">{children}</main>
+            </div>
           </div>
         </div>
       </SectionProvider>

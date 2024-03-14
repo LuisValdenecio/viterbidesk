@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { ThemeProvider, useTheme } from 'next-themes';
+import { SessionProvider } from 'next-auth/react';
 
 function ThemeWatcher() {
   let { resolvedTheme, setTheme } = useTheme();

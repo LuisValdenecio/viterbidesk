@@ -162,7 +162,7 @@ export default function SimpleSearchAgent({ open, close, parentCallBack }) {
       afterLeave={() => setQuery('')}
       appear
     >
-      <Dialog as="div" className="relative z-10" onClose={onCloseDialogWindow}>
+      <Dialog as="div" className="relative z-50" onClose={onCloseDialogWindow}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

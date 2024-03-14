@@ -3,9 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { ArrowUpIcon } from '@heroicons/react/20/solid';
-import { useState } from 'react';
-import SimpleSearchAgent from '@/components/SimpleSearchAgent';
 
 interface Tab {
   name: string;
@@ -25,7 +22,6 @@ interface MainTitle {
 }
 
 type TabArray = Tab[];
-let initialEmails: string[] = [];
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
@@ -35,58 +31,17 @@ const SectionHeading: React.FC<{
   tabs: TabArray;
   btnAndLink?: BtnAndLink;
   mainTitle?: MainTitle;
-}> = ({ tabs, btnAndLink, mainTitle }) => {
+}> = ({ tabs, mainTitle }) => {
   const pathname = usePathname();
-
-  const [isEmailDialogOpen, openEmailDialog] = useState(false);
-  const [emailInvitations, setEmailInvitations] = useState(initialEmails);
-
-  const openDialog = () => {
-    openEmailDialog(true);
-  };
-
-  const handleDataFromInvitationDialog = (data: string[]) => {
-    console.log(data);
-    setEmailInvitations(data);
-  };
 
   return (
     <>
-      <SimpleSearchAgent
-        open={isEmailDialogOpen}
-        parentCallBack={handleDataFromInvitationDialog}
-        close={() => openEmailDialog(false)}
-      />
       <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
-        {}
         <div className="md:flex md:items-center md:justify-between">
           {mainTitle && (
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
               {mainTitle.title}
             </h1>
-          )}
-
-          {btnAndLink && (
-            <div className="mt-3 flex md:absolute md:right-0 md:top-3 md:mt-0">
-              <button
-                onClick={() => openDialog()}
-                type="button"
-                className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                <ArrowUpIcon
-                  className="-ml-0.5 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-                {btnAndLink.buttonLabel}
-              </button>
-
-              <Link
-                href={btnAndLink?.link.url}
-                className="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                {btnAndLink.link.label}
-              </Link>
-            </div>
           )}
         </div>
 

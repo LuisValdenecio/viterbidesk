@@ -30,7 +30,8 @@
     ".next/types/**/*.ts",
     "src/components/SimpleSearch.jsx",
     "src/components/ProgressBar.tsx",
-    "src/app/lib/email.ts"
+    "src/app/lib/email.ts",
+    "src/graphs/AgentsGraph.jsx"
   ],
   "exclude": ["node_modules"]
 }

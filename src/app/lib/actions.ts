@@ -8,7 +8,7 @@ import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
 import { Organization, PrismaClient, User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { sendEmail } from './email';
-import { organizationStore } from '@/store/organization';
+import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
@@ -66,6 +66,7 @@ export async function createOrganization(
 
   const { organizationName } = validatedFields.data;
   const session = await getServerSession(authOptions);
+  authOptions;
 
   try {
     // create an org and assign ownership rights to the loggedin user
@@ -90,8 +91,27 @@ export async function createOrganization(
     };
   }
 
-  revalidatePath('/organizations/agents');
-  redirect('/organizations/agents');
+  revalidatePath('/organisation/agents');
+  redirect('/organisation/agents');
+}
+
+export async function isOwnerOfOrganization(userId: string, orgId: string) {
+  try {
+    const isOwner = await prisma.userToOrganization.findFirst({
+      where: {
+        user_id: userId,
+        org_id: orgId,
+        role_name: 'owner',
+      },
+      select: {
+        org_id: true,
+      },
+    });
+
+    return isOwner ? true : false;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
@@ -209,6 +229,8 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
 
+    console.log(emailResult);
+
     return {
       message: 'All fields are valid',
       emailResult: emailResult,
@@ -218,6 +240,24 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     return {
       message: 'Database Error',
     };
+  }
+}
+
+export async function setActiveOrganization(userId: string) {
+  try {
+    const activeOrganization = await prisma.userToOrganization.findMany({
+      where: {
+        user_id: userId,
+        role_name: 'owner',
+      },
+      select: {
+        org_id: true,
+      },
+    });
+
+    return activeOrganization;
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -306,18 +346,28 @@ export async function updateAgent(
   redirect('/dashboard/admin/agents');
 }
 
-export async function deleteAgent(id: string) {
+export async function deleteAgent(id: string, orgId: string) {
+  const session = await getServerSession(authOptions);
+
   try {
-    const deleteAgent = await prisma.user.delete({
+    const deletedAgent = await prisma.user.delete({
       where: {
         id: id,
       },
     });
 
+    const registeredLog = await prisma.deletedUsersLog.create({
+      data: {
+        user_removed_name: deletedAgent.name || deletedAgent.email,
+        user_acted_id: session?.user?.id,
+        org_user_belongs_to: orgId,
+      },
+    });
+
     revalidatePath('/dashboard/admin/agents');
     redirect('/dashboard/admin/agents');
-    return { message: 'Deleted agent.' };
   } catch (e) {
+    console.log(e);
     return {
       message: 'Database Error: Failed to delete agent',
     };

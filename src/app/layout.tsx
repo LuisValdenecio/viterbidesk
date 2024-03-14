@@ -1,6 +1,7 @@
 import { HeroPattern } from '@/components/HeroPattern';
 import '../styles/tailwind.css';
 import { Metadata } from 'next';
+import Banner from '@/components/Banner';
 
 export const metadata: Metadata = {
   title: {

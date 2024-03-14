@@ -1,18 +1,25 @@
 'use client';
 
 import { Menu } from '@headlessui/react';
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
+import {
+  CheckBadgeIcon,
+  EllipsisVerticalIcon,
+  ExclamationCircleIcon,
+  QuestionMarkCircleIcon,
+} from '@heroicons/react/20/solid';
 import { Agent } from '@/lib/definitions';
 import Link from 'next/link';
 
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
 import { resendInvitation } from '@/app/lib/actions';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
 import EmailResendDialog from './EmailResentDialog';
 import EmailResendFailedDialog from './EmailResendFailedDialog';
 import { Progress } from 'rsup-progress';
+import { organizationStore } from '@/store/organization';
+import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 const progress = new Progress({
   height: 3,
@@ -27,12 +34,41 @@ function classNames(...classes: string[]): string {
 
 const GetAgentsData: React.FC<{
   agents: agent_data;
-}> = ({ agents }) => {
+  allUsers: agent_data;
+}> = ({ agents, allUsers }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const activeOrgId = organizationStore(
+    (state: any) => state.activeOrganizationId,
+  );
   const [agentId, setagentId] = useState('');
   const [showFailedResendlDialog, setResendFailedDialog] = useState(false);
+  const session = useSession();
+  const [ownerStatus, setOwnerStatus] = useState(false);
+
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams);
+
   const [showSuccessEmailDialog, setSuccessfulEmailSentDialog] =
     useState(false);
+
+  useEffect(() => {
+    const isOwner = async () => {
+      const owner = agents.filter(
+        (agent) => agent.id === session.data?.user?.id,
+      );
+      console.log(owner);
+
+      if (owner) {
+        setOwnerStatus(true);
+      } else {
+        setOwnerStatus(false);
+      }
+    };
+
+    isOwner().catch((e) => {
+      console.error('An error occured while fetching the data');
+    });
+  }, [params.get('organisation') as string]);
 
   async function resendInvitationFn(
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -93,7 +129,7 @@ const GetAgentsData: React.FC<{
                 </svg>
               </span>
               <div className="min-w-0 flex-auto">
-                <p className="text-sm font-semibold leading-6 text-gray-900">
+                <p className="text-sm  text-gray-900">
                   {agent.name && (
                     <a href="/" className="hover:underline">
                       {agent.name}
@@ -101,15 +137,31 @@ const GetAgentsData: React.FC<{
                   )}
 
                   {agent.email_sent && !agent.name && (
-                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                      Invitation sent
-                    </span>
+                    <div className="flex text-sm">
+                      <span className="group inline-flex items-center text-gray-500 hover:text-gray-900">
+                        <CheckBadgeIcon
+                          className="h-5 w-5 text-green-400 "
+                          aria-hidden="true"
+                        />
+                        <span className="ml-1 text-green-400">
+                          Invitation sent
+                        </span>
+                      </span>
+                    </div>
                   )}
 
                   {!agent.email_sent && agent.role_name !== 'owner' && (
-                    <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
-                      Invitation failed
-                    </span>
+                    <div className="flex text-sm">
+                      <span className="group inline-flex items-center text-gray-500 hover:text-gray-900">
+                        <ExclamationCircleIcon
+                          className="h-5 w-5 text-orange-400 "
+                          aria-hidden="true"
+                        />
+                        <span className="ml-2 text-orange-400">
+                          Invitation failed
+                        </span>
+                      </span>
+                    </div>
                   )}
                 </p>
                 <p className="mt-1 flex text-xs leading-5 text-gray-500">
@@ -122,6 +174,7 @@ const GetAgentsData: React.FC<{
                 </p>
               </div>
             </div>
+
             <div className="flex shrink-0 items-center gap-x-6">
               <Menu as="div" className="relative flex-none">
                 <Menu.Button className="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900">
@@ -131,6 +184,7 @@ const GetAgentsData: React.FC<{
                     aria-hidden="true"
                   />
                 </Menu.Button>
+
                 <Transition
                   as={Fragment}
                   enter="transition ease-out duration-100"
@@ -141,11 +195,11 @@ const GetAgentsData: React.FC<{
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                    {agent.name && (
+                    {true && (
                       <Menu.Item>
                         {({ active }) => (
                           <Link
-                            href="#"
+                            href={`/dashboard/agents/${agent.id}`}
                             className={classNames(
                               active ? 'bg-gray-50' : '',
                               'block px-3 py-1 text-sm leading-6 text-gray-900',
@@ -158,39 +212,68 @@ const GetAgentsData: React.FC<{
                       </Menu.Item>
                     )}
 
-                    {!agent.name && (
+                    {allUsers.filter(
+                      (agent) =>
+                        agent.id === session.data?.user?.id &&
+                        agent.role_name === 'owner',
+                    ).length !== 0 &&
+                      !agent.name && (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              onClick={async (event) =>
+                                await resendInvitationFn(event, agent.id)
+                              }
+                              className={classNames(
+                                active ? 'bg-gray-50' : '',
+                                'block px-3 py-1 text-sm leading-6 text-gray-900',
+                              )}
+                            >
+                              Re-invite
+                              <span className="sr-only">, {agent.name}</span>
+                            </a>
+                          )}
+                        </Menu.Item>
+                      )}
+
+                    {allUsers.filter(
+                      (agent) =>
+                        agent.id === session.data?.user?.id &&
+                        agent.role_name === 'owner',
+                    ).length !== 0 && (
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            onClick={async (event) =>
-                              await resendInvitationFn(event, agent.id)
-                            }
+                            onClick={(event) => openDialog(event, agent.id)}
                             className={classNames(
+                              'cursor-pointer',
                               active ? 'bg-gray-50' : '',
                               'block px-3 py-1 text-sm leading-6 text-gray-900',
                             )}
                           >
-                            Re-invite
+                            Delete
                             <span className="sr-only">, {agent.name}</span>
                           </a>
                         )}
                       </Menu.Item>
                     )}
 
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          onClick={(event) => openDialog(event, agent.id)}
-                          className={classNames(
-                            'cursor-pointer',
-                            active ? 'bg-gray-50' : '',
-                            'block px-3 py-1 text-sm leading-6 text-gray-900',
-                          )}
-                        >
-                          Delete<span className="sr-only">, {agent.name}</span>
-                        </a>
-                      )}
-                    </Menu.Item>
+                    {agent.name && (
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            href="#"
+                            className={classNames(
+                              active ? 'bg-gray-50' : '',
+                              'block px-3 py-1 text-sm leading-6 text-gray-900',
+                            )}
+                          >
+                            Chat
+                            <span className="sr-only">, {agent.name}</span>
+                          </Link>
+                        )}
+                      </Menu.Item>
+                    )}
                   </Menu.Items>
                 </Transition>
               </Menu>

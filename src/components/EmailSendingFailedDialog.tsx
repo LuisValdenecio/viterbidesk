@@ -60,7 +60,7 @@ export default function EmailSendingFailedDialog({
                 </div>
                 <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse gap-2">
                   <Link
-                    href={'/dashboard/admin/agents'}
+                    href={'/dashboard/agents'}
                     className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     Cancel

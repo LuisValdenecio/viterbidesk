@@ -237,7 +237,7 @@ export const navigation: Array<NavGroup> = [
       { title: 'AI Marketplace', href: '/dashboard/marketplace' },
       { title: 'API', href: '/dashboard/api' },
       { title: 'Dashboard', href: '/dashboard' },
-      { title: 'Logs', href: '/dashboard/logs' },
+      { title: 'History', href: '/dashboard/history' },
       { title: 'Users', href: '/dashboard/agents' },
     ],
   },

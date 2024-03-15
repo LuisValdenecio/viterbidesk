@@ -62,6 +62,23 @@ export async function fetchOrganizations() {
   }
 }
 
+export async function fetchUserLogs(orgId: string) {
+  noStore();
+
+  try {
+    const userLogs = await prisma.usersLog.findMany({
+      where: {
+        org_user_belongs_to: orgId,
+      },
+    });
+    console.log(userLogs);
+    return userLogs;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch user logs.');
+  }
+}
+
 export async function fetchDefaultOrganization() {
   noStore();
 

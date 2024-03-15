@@ -17,8 +17,8 @@ model User {
   active Boolean @default(false)
   password String?
   userToOrganization UserToOrganization?
-  deletedUserLog DeletedUsersLog?
-  deletedArticleLog DeletedArticleLog?
+  usersLog UsersLog?
+  articlesLog ArticlesLog?
 
   activateToken ActivateToken?
   createdAt DateTime @default(now())
@@ -70,30 +70,42 @@ model UserToOrganization {
   @@map("users_to_organizations")
 }
 
-model DeletedArticleLog {
+model LogDescription {
+  description String @id @db.VarChar(255)
+  usersLog UsersLog?
+  articlesLog ArticlesLog?
+
+  @@map("log_description")
+}
+
+model ArticlesLog {
   id String @id @default(cuid())
   user_acted_id String @unique
   org_user_belongs_to String @unique
-  article_removed_title String @unique
+  operation_performed String @unique
+  article_title String @unique
 
   user_acted User @relation(fields : [user_acted_id], references: [id])
   org Organization @relation(fields: [org_user_belongs_to], references: [id])
+  log_description LogDescription @relation(fields: [operation_performed], references: [description])
   createdAt DateTime @default(now())
 
-  @@map("deleted_aritcles_log")  
+  @@map("aritcles_log")  
 }
 
-model DeletedUsersLog {
+model UsersLog {
   id String  @id @default(cuid()) 
   user_acted_id String @unique
   org_user_belongs_to String @unique
-  user_removed_name String @unique 
+  operation_performed String @unique
+  user String @unique 
 
   user_acted User @relation(fields : [user_acted_id], references: [id])
+  log_description LogDescription @relation(fields: [operation_performed], references: [description])
   org Organization @relation(fields: [org_user_belongs_to], references: [id])
   createdAt DateTime @default(now())
 
-  @@map("deleted_users_log")  
+  @@map("users_log")  
 }
 
 model Organization {
@@ -101,8 +113,8 @@ model Organization {
   name String @db.VarChar(255)
   email String? @unique
   role Role?
-  deletedUserLog DeletedUsersLog?
-  deletedArticleLog DeletedArticleLog?
+  usersLog UsersLog?
+  articlesLog ArticlesLog?
   userToOrganization UserToOrganization?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

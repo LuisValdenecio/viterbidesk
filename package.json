@@ -42,6 +42,7 @@
     "autoprefixer": "^10.4.7",
     "bcrypt": "^5.1.1",
     "clsx": "^1.2.0",
+    "date-fns": "^3.5.0",
     "fast-glob": "^3.3.0",
     "flexsearch": "^0.7.31",
     "flowbite": "^2.2.1",

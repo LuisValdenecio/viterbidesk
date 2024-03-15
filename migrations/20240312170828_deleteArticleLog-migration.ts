@@ -1,13 +1,19 @@
 import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('deleted_aritcles_log', (table) => {
+  await knex.schema.createTable('aritcles_log', (table) => {
     table.string('id', 25).primary();
-    table.string('article_removed_title', 25);
+    table.string('article_title', 255);
     table.string('user_acted_id').notNullable();
+    table.string('operation_performed').notNullable();
     table.string('org_user_belongs_to').notNullable();
 
     table.foreign('user_acted_id').references('users.id').onUpdate('cascade');
+
+    table
+      .foreign('operation_performed')
+      .references('log_description.description')
+      .onUpdate('cascade');
 
     table
       .foreign('org_user_belongs_to')
@@ -19,5 +25,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('deleted_aritcles_log');
+  await knex.schema.dropTable('aritcles_log');
 }

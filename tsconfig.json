@@ -31,7 +31,8 @@
     "src/components/SimpleSearch.jsx",
     "src/components/ProgressBar.tsx",
     "src/app/lib/email.ts",
-    "src/graphs/AgentsGraph.jsx"
+    "src/graphs/AgentsGraph.jsx",
+    "src/components/HistoryEntry.tsx"
   ],
   "exclude": ["node_modules"]
 }

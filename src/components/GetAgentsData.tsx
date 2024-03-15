@@ -37,16 +37,10 @@ const GetAgentsData: React.FC<{
   allUsers: agent_data;
 }> = ({ agents, allUsers }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const activeOrgId = organizationStore(
-    (state: any) => state.activeOrganizationId,
-  );
+
   const [agentId, setagentId] = useState('');
   const [showFailedResendlDialog, setResendFailedDialog] = useState(false);
   const session = useSession();
-  const [ownerStatus, setOwnerStatus] = useState(false);
-
-  const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams);
 
   const [showSuccessEmailDialog, setSuccessfulEmailSentDialog] =
     useState(false);
@@ -56,7 +50,6 @@ const GetAgentsData: React.FC<{
       const owner = agents.filter(
         (agent) => agent.id === session.data?.user?.id,
       );
-      console.log(owner);
 
       if (owner) {
         setOwnerStatus(true);
@@ -68,7 +61,7 @@ const GetAgentsData: React.FC<{
     isOwner().catch((e) => {
       console.error('An error occured while fetching the data');
     });
-  }, [params.get('organisation') as string]);
+  }, []);
 
   async function resendInvitationFn(
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,

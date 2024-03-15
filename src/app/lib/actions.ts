@@ -356,10 +356,11 @@ export async function deleteAgent(id: string, orgId: string) {
       },
     });
 
-    const registeredLog = await prisma.deletedUsersLog.create({
+    await prisma.usersLog.create({
       data: {
-        user_removed_name: deletedAgent.name || deletedAgent.email,
+        user: deletedAgent.name || deletedAgent.email,
         user_acted_id: session?.user?.id,
+        operation_performed: 'delete',
         org_user_belongs_to: orgId,
       },
     });

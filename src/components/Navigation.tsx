@@ -243,6 +243,15 @@ export const navigation: Array<NavGroup> = [
   },
 
   {
+    title: 'File System',
+    links: [
+      { title: 'Files', href: '/dashboard/analytics' },
+      { title: 'Uploads', href: '/dashboard/marketplace' },
+      { title: 'Reports', href: '/dashboard/api' },
+    ],
+  },
+
+  {
     title: 'Articles',
     links: [
       { title: 'All articles', href: '/dashboard/billing' },

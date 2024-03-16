@@ -5,21 +5,18 @@ import {
   CheckBadgeIcon,
   EllipsisVerticalIcon,
   ExclamationCircleIcon,
-  QuestionMarkCircleIcon,
 } from '@heroicons/react/20/solid';
 import { Agent } from '@/lib/definitions';
 import Link from 'next/link';
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
 import { resendInvitation } from '@/app/lib/actions';
 import EmailResendDialog from './EmailResentDialog';
 import EmailResendFailedDialog from './EmailResendFailedDialog';
 import { Progress } from 'rsup-progress';
-import { organizationStore } from '@/store/organization';
 import { useSession } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
 
 const progress = new Progress({
   height: 3,
@@ -44,24 +41,6 @@ const GetAgentsData: React.FC<{
 
   const [showSuccessEmailDialog, setSuccessfulEmailSentDialog] =
     useState(false);
-
-  useEffect(() => {
-    const isOwner = async () => {
-      const owner = agents.filter(
-        (agent) => agent.id === session.data?.user?.id,
-      );
-
-      if (owner) {
-        setOwnerStatus(true);
-      } else {
-        setOwnerStatus(false);
-      }
-    };
-
-    isOwner().catch((e) => {
-      console.error('An error occured while fetching the data');
-    });
-  }, []);
 
   async function resendInvitationFn(
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -107,6 +86,26 @@ const GetAgentsData: React.FC<{
         open={showFailedResendlDialog}
         close={() => setResendFailedDialog(false)}
       />
+
+      {agents.length === 0 && (
+        <div className="px-6 py-14 text-center text-sm sm:px-14">
+          <ExclamationCircleIcon
+            type="outline"
+            name="exclamation-circle"
+            className="mx-auto h-6 w-6 text-gray-400"
+          />
+          <p className="mt-4 font-semibold text-gray-900">No results found</p>
+          <p className="mt-2 mb-4 text-gray-500">
+            No logs found for this organisation.
+          </p>
+          <Link
+            href="/dashboard/agents"
+            className="rounded bg-indigo-500 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            dashboard
+          </Link>
+        </div>
+      )}
 
       <ul role="list" className="divide-y divide-gray-100">
         {agents.map((agent) => (

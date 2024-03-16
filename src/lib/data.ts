@@ -62,8 +62,13 @@ export async function fetchOrganizations() {
   }
 }
 
-export async function fetchUserLogs(orgId: string) {
+export async function fetchUserLogs(
+  orgId: string,
+  query: string,
+  currentPage: number,
+) {
   noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
     const userLogs = await prisma.usersLog.findMany({
@@ -71,8 +76,28 @@ export async function fetchUserLogs(orgId: string) {
         org_user_belongs_to: orgId,
       },
     });
-    console.log(userLogs);
-    return userLogs;
+
+    const filteredUserLogs = await prisma.$queryRaw`
+      SELECT * FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
+      (users_log.user ILIKE ${`%${query}%`} OR users_log.user_acted_id ILIKE ${`%${query}%`} ) 
+      ORDER BY "createdAt" DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    const totalUserLogs = await prisma.$queryRaw`
+      SELECT count(*)
+      FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
+      (users_log.user ILIKE ${`%${query}%`} OR users_log.user_acted_id ILIKE ${`%${query}%`} )
+    `;
+
+    console.log(filteredUserLogs);
+
+    return {
+      userLogs: filteredUserLogs,
+      totalUserLogs: Math.ceil(
+        Number(totalUserLogs[0]?.count) / ITEMS_PER_PAGE,
+      ),
+    };
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch user logs.');

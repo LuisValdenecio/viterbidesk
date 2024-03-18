@@ -1,17 +1,18 @@
 'use client';
 
-import { Fragment, useState, useContext, useEffect } from 'react';
+import { Fragment, useState, useContext } from 'react';
 import { Combobox, Dialog, Transition } from '@headlessui/react';
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/20/solid';
-import { useRouter } from 'next/navigation';
+import {
+  BuildingLibraryIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+} from '@heroicons/react/20/solid';
 import {
   ExclamationCircleIcon,
   ViewColumnsIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
-import { getActiveOrgCookie } from '@/app/lib/actions';
 
 function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ');
@@ -101,7 +102,7 @@ export default function OrganizationModal({ open, close, orgs }) {
                                 'bg-indigo-500',
                               )}
                             >
-                              <ViewColumnsIcon
+                              <BuildingLibraryIcon
                                 className="h-6 w-6 text-white"
                                 aria-hidden="true"
                               />

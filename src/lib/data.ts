@@ -79,7 +79,7 @@ export async function fetchUserLogs(
 
     const filteredUserLogs = await prisma.$queryRaw`
       SELECT * FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
-      (users_log.user ILIKE ${`%${query}%`} OR users_log.user_acted_id ILIKE ${`%${query}%`} ) 
+      (users_log.user_acted_name ILIKE ${`%${query}%`} OR users_log.user_subject ILIKE ${`%${query}%`} ) 
       ORDER BY "createdAt" DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -87,7 +87,7 @@ export async function fetchUserLogs(
     const totalUserLogs = await prisma.$queryRaw`
       SELECT count(*)
       FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
-      (users_log.user ILIKE ${`%${query}%`} OR users_log.user_acted_id ILIKE ${`%${query}%`} )
+      (users_log.user_acted_name ILIKE ${`%${query}%`} OR users_log.user_subject ILIKE ${`%${query}%`} )
     `;
 
     console.log(filteredUserLogs);
@@ -178,6 +178,7 @@ export async function fetchAgents(
       users.id,
       users.name,
       users.email,
+      users.img,
       users_to_organizations.role_name,
       activate_tokens.email_sent
     FROM users
@@ -193,6 +194,7 @@ export async function fetchAgents(
         users.id,
         users.name,
         users.email,
+        users.img,
         users_to_organizations.role_name,
         activate_tokens.email_sent
       FROM users

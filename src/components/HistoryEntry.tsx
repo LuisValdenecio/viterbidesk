@@ -74,7 +74,7 @@ export default function HistoryEntry({
             <div className="min-w-0">
               <div className="flex items-start gap-x-3">
                 <p className="text-sm font-semibold leading-6 text-gray-900">
-                  The user {log.user} was deleted
+                  The user {log.user_subject} was deleted
                 </p>
               </div>
               <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
@@ -87,7 +87,7 @@ export default function HistoryEntry({
                 <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
                   <circle cx={1} cy={1} r={1} />
                 </svg>
-                <p className="truncate">executed by {log.user_acted_id}</p>
+                <p className="truncate">executed by {log.user_acted_name}</p>
               </div>
             </div>
             <div className="flex flex-none items-center gap-x-4">

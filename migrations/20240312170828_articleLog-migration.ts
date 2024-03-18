@@ -4,6 +4,8 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('aritcles_log', (table) => {
     table.string('id', 25).primary();
     table.string('article_title', 255);
+    table.string('user_acted_name', 255);
+    table.string('user_subject', 255);
     table.string('user_acted_id').notNullable();
     table.string('operation_performed').notNullable();
     table.string('org_user_belongs_to').notNullable();

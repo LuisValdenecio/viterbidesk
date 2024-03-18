@@ -13,6 +13,7 @@ datasource db {
 model User {
   id  String  @id @default(cuid()) 
   name String? @db.VarChar(255)
+  img String? @db.VarChar(255)
   email String? @unique
   active Boolean @default(false)
   password String?
@@ -81,6 +82,8 @@ model LogDescription {
 model ArticlesLog {
   id String @id @default(cuid())
   user_acted_id String @unique
+  user_acted_name String? @db.VarChar(255)
+  user_subject String? @db.VarChar(255)
   org_user_belongs_to String @unique
   operation_performed String @unique
   article_title String @unique
@@ -96,9 +99,11 @@ model ArticlesLog {
 model UsersLog {
   id String  @id @default(cuid()) 
   user_acted_id String @unique
+  user_acted_name String? @db.VarChar(255)
+  user_subject String? @db.VarChar(255)
   org_user_belongs_to String @unique
+
   operation_performed String @unique
-  user String @unique 
 
   user_acted User @relation(fields : [user_acted_id], references: [id])
   log_description LogDescription @relation(fields: [operation_performed], references: [description])

@@ -66,6 +66,7 @@ export const handler = NextAuth({
     // pass in user id to the token
     async jwt({ token, user, session, trigger }) {
       if (trigger === 'update') {
+        token.img = session.img;
         return { ...token, ...session.user };
       }
 
@@ -73,7 +74,7 @@ export const handler = NextAuth({
         return {
           ...token,
           id: user.id,
-          organizationId: '',
+          img: user.img,
         };
       }
       return token;
@@ -84,7 +85,7 @@ export const handler = NextAuth({
         user: {
           ...session.user,
           id: token.id,
-          organizationId: token.organizationId,
+          img: token.img,
         },
       };
     },

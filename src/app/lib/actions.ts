@@ -356,12 +356,22 @@ export async function deleteAgent(id: string, orgId: string) {
       },
     });
 
+    const actingUserName = await prisma.user.findFirst({
+      where: {
+        id: session?.user?.id,
+      },
+      select: {
+        name: true,
+      },
+    });
+
     await prisma.usersLog.create({
       data: {
-        user: deletedAgent.name || deletedAgent.email,
         user_acted_id: session?.user?.id,
-        operation_performed: 'delete',
+        user_acted_name: actingUserName?.name,
+        user_subject: deletedAgent.name || deletedAgent.email,
         org_user_belongs_to: orgId,
+        operation_performed: 'delete',
       },
     });
 

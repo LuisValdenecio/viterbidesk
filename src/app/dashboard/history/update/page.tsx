@@ -21,7 +21,7 @@ export default async function Page({
       <HistoryEntry
         query={query}
         currentPage={currentPage}
-        logOoperation={'delete'}
+        logOoperation={'update'}
       />
     </>
   );

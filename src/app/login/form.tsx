@@ -2,7 +2,6 @@
 
 import { HeroPattern } from '@/components/HeroPattern';
 import { ButtonSignIn } from '@/components/button_signin';
-import { useSession } from 'next-auth/react';
 import {
   ArrowRightIcon,
   ExclamationCircleIcon,
@@ -14,6 +13,7 @@ import { FormEvent, useState } from 'react';
 //@ts-ignore
 import { useFormStatus } from 'react-dom';
 import { fetchOrganizations } from '@/lib/data';
+import { registerSignIn } from '../lib/actions';
 
 export default function Form() {
   const [isThereAFormError, SetFormError] = useState(false);
@@ -30,8 +30,21 @@ export default function Form() {
     });
 
     if (!response?.error) {
-      router.push(`/dashboard`);
-      router.refresh();
+      try {
+        const orgs: any = await fetchOrganizations();
+        if (orgs.length > 1) {
+          router.push(`/dashboard?select_org=true`);
+          router.refresh();
+        } else {
+          // register a sign-in log history
+          await registerSignIn(orgs[0].id);
+
+          router.push(`/dashboard`);
+          router.refresh();
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } else {
       SetFormError(true);
     }

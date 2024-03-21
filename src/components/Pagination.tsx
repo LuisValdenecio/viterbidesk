@@ -21,7 +21,7 @@ export default function Pagination({ totalPages }: { totalPages: number }) {
     return `${pathname}?${params.toString()}`;
   };
 
-  if (totalPages > 0) {
+  if (totalPages > 1) {
     return (
       <>
         <div className="inline-flex">

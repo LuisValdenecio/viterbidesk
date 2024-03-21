@@ -2,6 +2,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+
 import {
   S3Client,
   PutObjectCommand,
@@ -35,6 +36,8 @@ async function uploadFileToS3(
     contentType: ['image/jpg', 'image/png'],
   };
 
+  console.log(`${user_id}.${imgExt}`);
+
   const command = new PutObjectCommand(params);
 
   try {
@@ -47,15 +50,14 @@ async function uploadFileToS3(
       },
     });
 
-    console.log(user?.img?.split('/')[user?.img?.split('/').length - 1]);
+    if (user?.img) {
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: process.env.AWS_PHOTO_BUCKET_NAME,
+        Key: user?.img?.split('/')[user?.img?.split('/').length - 1],
+      });
 
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: process.env.AWS_PHOTO_BUCKET_NAME,
-      Key: user?.img?.split('/')[user?.img?.split('/').length - 1],
-    });
-
-    const response = await s3Client.send(deleteCommand);
-    console.log(response);
+      const response = await s3Client.send(deleteCommand);
+    }
   } catch (err) {
     console.error(err);
   }

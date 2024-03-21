@@ -9,7 +9,7 @@ import {
 import { Agent } from '@/lib/definitions';
 import Link from 'next/link';
 
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import DeleteModal from '@/components/AlertDialog';
 import { resendInvitation } from '@/app/lib/actions';
@@ -17,6 +17,8 @@ import EmailResendDialog from './EmailResentDialog';
 import EmailResendFailedDialog from './EmailResendFailedDialog';
 import { Progress } from 'rsup-progress';
 import { useSession } from 'next-auth/react';
+import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
+import EditUserDialog from '@/components/EditUserDialog';
 
 const progress = new Progress({
   height: 3,
@@ -34,6 +36,11 @@ const GetAgentsData: React.FC<{
   allUsers: agent_data;
 }> = ({ agents, allUsers }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditModalDialogOpen, setEditModalDialogOpen] = useState(false);
+  const [agentToEdit, setAgentToEdit] = useState<Agent | null>(null);
+
+  // context might replace the all url-state stuff
+  const activeOrg = useContext(OrganizationContext)?.organizationId;
 
   const [agentId, setagentId] = useState('');
   const [showFailedResendlDialog, setResendFailedDialog] = useState(false);
@@ -47,7 +54,7 @@ const GetAgentsData: React.FC<{
     userId: string,
   ) {
     progress.start();
-    const result = await resendInvitation(userId).then((res) => {
+    const result = await resendInvitation(userId, activeOrg).then((res) => {
       progress.end();
 
       if (res?.message === 'Email resent sucessfully') {
@@ -59,6 +66,14 @@ const GetAgentsData: React.FC<{
       }
     });
   }
+
+  const openEditDialog = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    agent: any,
+  ) => {
+    setEditModalDialogOpen(true);
+    setAgentToEdit(agent);
+  };
 
   const openDialog = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -75,6 +90,12 @@ const GetAgentsData: React.FC<{
         agentId={agentId}
         userType="Agent"
         close={() => setIsDialogOpen(false)}
+      />
+
+      <EditUserDialog
+        open={isEditModalDialogOpen}
+        agent={agentToEdit}
+        close={() => setEditModalDialogOpen(false)}
       />
 
       <EmailResendDialog
@@ -198,23 +219,6 @@ const GetAgentsData: React.FC<{
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                    {true && (
-                      <Menu.Item>
-                        {({ active }) => (
-                          <Link
-                            href={`/dashboard/agents/${agent.id}`}
-                            className={classNames(
-                              active ? 'bg-gray-50' : '',
-                              'block px-3 py-1 text-sm leading-6 text-gray-900',
-                            )}
-                          >
-                            View profile
-                            <span className="sr-only">, {agent.name}</span>
-                          </Link>
-                        )}
-                      </Menu.Item>
-                    )}
-
                     {allUsers.filter(
                       (agent) =>
                         agent.id === session.data?.user?.id &&
@@ -260,6 +264,29 @@ const GetAgentsData: React.FC<{
                         )}
                       </Menu.Item>
                     )}
+
+                    {allUsers.filter(
+                      (agent) =>
+                        agent.id === session.data?.user?.id &&
+                        agent.role_name === 'owner',
+                    ).length !== 0 &&
+                      agent.name && (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              onClick={(event) => openEditDialog(event, agent)}
+                              className={classNames(
+                                'cursor-pointer',
+                                active ? 'bg-gray-50' : '',
+                                'block px-3 py-1 text-sm leading-6 text-gray-900',
+                              )}
+                            >
+                              Edit
+                              <span className="sr-only">, {agent.name}</span>
+                            </a>
+                          )}
+                        </Menu.Item>
+                      )}
 
                     {agent.name && (
                       <Menu.Item>

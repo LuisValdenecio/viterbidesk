@@ -7,7 +7,7 @@ import { useEffect, useContext, useState } from 'react';
 import Pagination from './Pagination';
 import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
 import { format } from 'date-fns';
-import { fetchUserLogs } from '@/lib/data';
+import { fetchSignInLogs } from '@/lib/data';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
@@ -15,7 +15,7 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function HistoryEntry({
+export default function SignInHistoryLogEntry({
   query,
   currentPage,
   logOoperation,
@@ -31,14 +31,13 @@ export default function HistoryEntry({
 
   useEffect(() => {
     const isOwner = async () => {
-      const allLogs = await fetchUserLogs(
-        activeOrg.organizationId,
+      const allLogs = await fetchSignInLogs(
         query,
         currentPage,
-        logOoperation,
+        activeOrg.organizationId,
       );
-      setUserLogs(allLogs.userLogs);
-      setAllPages(allLogs.totalUserLogs);
+      setUserLogs(allLogs.filteredSignInLogs);
+      setAllPages(allLogs.totalLogs);
     };
 
     isOwner().catch((e) => {
@@ -76,23 +75,9 @@ export default function HistoryEntry({
           >
             <div className="min-w-0">
               <div className="flex items-start gap-x-3">
-                {logOoperation === 'delete' && (
-                  <p className="text-sm font-semibold leading-6 text-gray-900">
-                    The user {log.user_subject} was deleted
-                  </p>
-                )}
-
-                {logOoperation === 'invite' && (
-                  <p className="text-sm font-semibold leading-6 text-gray-900">
-                    An invitation was sent to the email {log.user_subject}
-                  </p>
-                )}
-
-                {logOoperation === 'update' && (
-                  <p className="text-sm font-semibold leading-6 text-gray-900">
-                    The user {log.user_subject} was updated
-                  </p>
-                )}
+                <p className="text-sm font-semibold leading-6 text-gray-900">
+                  The user {log.user_name} signed in
+                </p>
               </div>
               <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                 <p className="whitespace-nowrap">
@@ -101,10 +86,6 @@ export default function HistoryEntry({
                     {format(log.createdAt, 'yyyy-MM-dd')}
                   </time>
                 </p>
-                <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
-                  <circle cx={1} cy={1} r={1} />
-                </svg>
-                <p className="truncate">executed by {log.user_acted_name}</p>
               </div>
             </div>
             <div className="flex flex-none items-center gap-x-4">

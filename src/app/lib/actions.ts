@@ -10,18 +10,33 @@ import { hash } from 'bcrypt';
 import { sendEmail } from './email';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
+import { format } from 'date-fns';
 
 const prisma = new PrismaClient();
 
 const AgentFormSchema = z.object({
-  getOrganizationId: z.string().min(25, {
+  agentName: z.string().min(1, {
     message: 'Please provide the id for the organization',
   }),
   agentEmail: z.string().email({
     message: 'Please enter a valid email address.',
   }),
+});
 
-  agentRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
+const NewAgentFormSchema = z.object({
+  agentEmail: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  userRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
+    invalid_type_error: 'Please select a role for this agent.',
+  }),
+  getOrganizationId: z.string().min(25, {
+    message: 'Please provide the id for the organization',
+  }),
+});
+
+const UserRoleFormSchema = z.object({
+  userRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
     invalid_type_error: 'Please select a role for this agent.',
   }),
 });
@@ -32,8 +47,9 @@ const OrganizationFormSchema = z.object({
   }),
 });
 
-const CreateAgent = AgentFormSchema.omit({});
+const CreateNewAgent = NewAgentFormSchema.omit({});
 const UpdateAgent = AgentFormSchema.omit({});
+const UpdateUserRole = UserRoleFormSchema.omit({});
 
 const CreateOrganization = OrganizationFormSchema.omit({});
 const updateOrganization = OrganizationFormSchema.omit({});
@@ -91,8 +107,8 @@ export async function createOrganization(
     };
   }
 
-  revalidatePath('/organisation/agents');
-  redirect('/organisation/agents');
+  revalidatePath('/dashboard/agents');
+  redirect('/dashboard/agents');
 }
 
 export async function isOwnerOfOrganization(userId: string, orgId: string) {
@@ -163,9 +179,9 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     },
   });
 
-  const validatedFields = CreateAgent.safeParse({
+  const validatedFields = CreateNewAgent.safeParse({
     agentEmail: formData.get('email'),
-    agentRole: formData.get('role'),
+    userRole: formData.get('role'),
     getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
 
@@ -178,7 +194,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { agentEmail, agentRole, getOrganizationId } = validatedFields.data;
+  const { agentEmail, userRole, getOrganizationId } = validatedFields.data;
 
   try {
     // write a prsima query to search for a user with the agentEmail
@@ -203,7 +219,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
         userToOrganization: {
           create: {
             org_id: getOrganizationId,
-            role_name: agentRole,
+            role_name: userRole,
           },
         },
         activateToken: {
@@ -229,7 +245,15 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
 
-    console.log(emailResult);
+    await prisma.usersLog.create({
+      data: {
+        user_acted_id: session?.user?.id,
+        user_acted_name: session?.user?.name,
+        user_subject: newUser.name || newUser.email,
+        org_user_belongs_to: getOrganizationId,
+        operation_performed: 'invite',
+      },
+    });
 
     return {
       message: 'All fields are valid',
@@ -240,6 +264,52 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     return {
       message: 'Database Error',
     };
+  }
+}
+
+export async function registerSignIn(orgId: string) {
+  console.log('registerSignIn');
+
+  const session = await getServerSession(authOptions);
+
+  try {
+    // register logs once for day for each user
+    const lastSignIn = await prisma.signInLog.findUnique({
+      where: {
+        user_id: session?.user?.id,
+        org_id: orgId,
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    if (lastSignIn) {
+      if (
+        format(lastSignIn?.createdAt, 'yyyy-MM-dd') !==
+        format(new Date(), 'yyyy-MM-dd')
+      ) {
+        await prisma.signInLog.create({
+          data: {
+            user_id: session?.user?.id,
+            org_id: orgId,
+            user_name: session?.user?.name,
+          },
+        });
+      } else {
+        console.log('already signed');
+      }
+    } else {
+      await prisma.signInLog.create({
+        data: {
+          user_id: session?.user?.id,
+          org_id: orgId,
+          user_name: session?.user?.name,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -261,7 +331,9 @@ export async function setActiveOrganization(userId: string) {
   }
 }
 
-export async function resendInvitation(id: string) {
+export async function resendInvitation(id: string, orgId: string) {
+  const session = await getServerSession(authOptions);
+
   try {
     // fetch the user email and set to a constant named agentEmail
     const user = await prisma.user.findUnique({
@@ -270,6 +342,7 @@ export async function resendInvitation(id: string) {
       },
       select: {
         email: true,
+        name: true,
       },
     });
 
@@ -295,6 +368,16 @@ export async function resendInvitation(id: string) {
       };
     }
 
+    await prisma.usersLog.create({
+      data: {
+        user_acted_id: session?.user?.id,
+        user_acted_name: session?.user?.name,
+        user_subject: user?.name || user?.email,
+        org_user_belongs_to: orgId,
+        operation_performed: 'invite',
+      },
+    });
+
     return {
       message: 'Email resent sucessfully',
     };
@@ -303,17 +386,68 @@ export async function resendInvitation(id: string) {
   }
 }
 
+export async function updateUserRole(
+  id: string,
+  prevState: StateAgent,
+  formData: FormData,
+) {
+  const session = await getServerSession(authOptions);
+
+  const validatedFields = UpdateUserRole.safeParse({
+    userRole: formData.get('role'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Please do select a role for this user',
+    };
+  }
+
+  const { userRole } = validatedFields.data;
+
+  try {
+    const updateAgent = await prisma.userToOrganization.update({
+      where: {
+        user_id: id,
+        org_id: formData.get('org_id') as string,
+      },
+      data: {
+        role_name: userRole,
+      },
+    });
+
+    await prisma.usersLog.create({
+      data: {
+        user_acted_id: session?.user?.id,
+        user_acted_name: session?.user?.name,
+        user_subject: formData.get('user_name') as string,
+        org_user_belongs_to: formData.get('org_id') as string,
+        operation_performed: 'update',
+      },
+    });
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to update agent',
+    };
+  }
+
+  revalidatePath('/dashboard/agents');
+  redirect('/dashboard/agents');
+}
+
 export async function updateAgent(
   id: string,
   prevState: StateAgent,
   formData: FormData,
 ) {
+  console.log(formData);
+  const session = await getServerSession(authOptions);
+
   // validate form using zod
   const validatedFields = UpdateAgent.safeParse({
     agentName: formData.get('name'),
     agentEmail: formData.get('email'),
-    agentImgUrl: '/agents/steven-tey-1.png',
-    agentRole: formData.get('role'),
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -325,7 +459,7 @@ export async function updateAgent(
   }
 
   // Prepare data for insertion into the database
-  const { agentEmail, agentRole } = validatedFields.data;
+  const { agentEmail, agentName } = validatedFields.data;
 
   try {
     const updateAgent = await prisma.user.update({
@@ -334,25 +468,37 @@ export async function updateAgent(
       },
       data: {
         email: agentEmail,
+        name: agentName,
+      },
+    });
+
+    await prisma.usersLog.create({
+      data: {
+        user_acted_id: session?.user?.id,
+        user_acted_name: session?.user?.name,
+        user_subject: updateAgent.name as string,
+        org_user_belongs_to: formData.get('org_id') as string,
+        operation_performed: 'update',
       },
     });
   } catch (error) {
+    console.log(error);
     return {
       message: 'Database Error: Failed to update agent',
     };
   }
 
-  revalidatePath('/dashboard/admin/agents');
-  redirect('/dashboard/admin/agents');
+  revalidatePath('/dashboard/');
+  redirect('/dashboard/');
 }
 
 export async function deleteAgent(id: string, orgId: string) {
   const session = await getServerSession(authOptions);
 
   try {
-    const deletedAgent = await prisma.user.delete({
+    const deletedAgent = await prisma.userToOrganization.delete({
       where: {
-        id: id,
+        user_id: id,
       },
     });
 
@@ -375,8 +521,8 @@ export async function deleteAgent(id: string, orgId: string) {
       },
     });
 
-    revalidatePath('/dashboard/admin/agents');
-    redirect('/dashboard/admin/agents');
+    revalidatePath('/dashboard/');
+    redirect('/dashboard/');
   } catch (e) {
     console.log(e);
     return {

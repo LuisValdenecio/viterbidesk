@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 //@ts-ignore
 import { useFormStatus } from 'react-dom';
+import { registerSignIn } from '../lib/actions';
 
 export default function Form() {
   const [isThereAFormError, SetFormError] = useState(false);

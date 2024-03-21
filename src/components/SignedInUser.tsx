@@ -22,6 +22,7 @@ import { ArrowDownIcon } from '@heroicons/react/24/solid';
 import OrganizationModal from './OrganizationModal';
 import { useSearchParams } from 'next/navigation';
 import ConfirmationBanner from './Banner';
+import InitialOrganizationModal from './InitialOrganizationModal';
 
 const recentPosts = [
   {
@@ -81,6 +82,8 @@ export default function SignedInUser() {
         close={() => openEmailDialog(false)}
         orgs={data}
       />
+
+      <InitialOrganizationModal orgs={data} />
     </div>
   );
 }

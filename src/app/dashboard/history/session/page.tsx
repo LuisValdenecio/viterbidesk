@@ -1,4 +1,4 @@
-import HistoryEntry from '@/components/HistoryEntry';
+import SignInHistoryLogEntry from '@/components/SigninHistoryLogEntry';
 import UserSearch from '@/components/UserSearch';
 import { Menu } from '@headlessui/react';
 
@@ -18,10 +18,10 @@ export default async function Page({
       <div className="pl-6">
         <UserSearch placeholder="search for user..." />
       </div>
-      <HistoryEntry
+      <SignInHistoryLogEntry
         query={query}
         currentPage={currentPage}
-        logOoperation={'delete'}
+        logOoperation={'invite'}
       />
     </>
   );

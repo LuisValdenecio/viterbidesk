@@ -20,18 +20,22 @@ function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function OrganizationModal({
-  open,
-  close,
-  orgs,
-}: {
-  open: boolean;
-  close: any;
-  orgs: any;
-}) {
+export default function InitialOrganizationModal({ orgs }: { orgs: any }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
+  const [openSelectOrgModal, setSelectOrgModal] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const selectOrgModal = params.get('select_org');
+    if (selectOrgModal) {
+      setSelectOrgModal(true);
+    } else {
+      setSelectOrgModal(false);
+    }
+  }, [params.get('select_org')]);
 
   const saveSignInHistoryLog = async (orgId: string) => {
     await registerSignIn(orgId);
@@ -49,12 +53,12 @@ export default function OrganizationModal({
 
   return (
     <Transition.Root
-      show={open}
+      show={openSelectOrgModal}
       as={Fragment}
       afterLeave={() => setQuery('')}
       appear
     >
-      <Dialog as="div" className="relative z-50" onClose={close}>
+      <Dialog as="div" className="relative z-50" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -103,7 +107,8 @@ export default function OrganizationModal({
                         onClick={() => {
                           activeOrg.setOrganizationId(item.id);
                           saveSignInHistoryLog(item.id);
-                          close();
+                          router.push(`/dashboard/agents`);
+                          router.refresh();
                         }}
                         className={({ active }) =>
                           classNames(
@@ -144,25 +149,6 @@ export default function OrganizationModal({
                                 {item.role_name}
                               </p>
                             </div>
-
-                            {item.id === activeOrg.organizationId && (
-                              <div className="flex items-center">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="green"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m4.5 12.75 6 6 9-13.5"
-                                  />
-                                </svg>
-                              </div>
-                            )}
                           </>
                         )}
                       </Combobox.Option>

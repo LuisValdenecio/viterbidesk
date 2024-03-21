@@ -1,10 +1,10 @@
 import SectionHeading from '@/components/SectionHeading';
 
 const tabs: Array<{ name: string; href: string }> = [
-  { name: 'Removals', href: '/dashboard/history' },
-  { name: 'Updates', href: '/dashboard/historyarticles' },
-  { name: 'Sessions Register', href: '/dashboard/history/settings' },
-  { name: 'AI history', href: '/dashboard/history/settings' },
+  { name: 'Delete', href: '/dashboard/history' },
+  { name: 'Update', href: '/dashboard/history/update' },
+  { name: 'Invite', href: '/dashboard/history/invite' },
+  { name: 'Sign in logs', href: '/dashboard/history/session' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

@@ -62,10 +62,65 @@ export async function fetchOrganizations() {
   }
 }
 
+export async function fetchUserNameAndEmail() {
+  noStore();
+
+  const session = await getServerSession(authOptions);
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session?.user?.id,
+      },
+      select: {
+        name: true,
+        email: true,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function fetchSignInLogs(
+  query: string,
+  currentPage: number,
+  orgId: string,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const filteredSignInLogs = await prisma.$queryRaw`
+      SELECT user_id, org_id, user_name, "createdAt" FROM signin_log 
+        WHERE signin_log.org_id = ${orgId} AND
+        user_name ILIKE ${`%${query}%`} 
+        ORDER BY "createdAt" DESC
+        LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+        `;
+
+    const totalLogs = await prisma.$queryRaw`
+      SELECT count(*) FROM signin_log 
+        WHERE signin_log.org_id = ${orgId} AND
+        user_name ILIKE ${`%${query}%`}`;
+
+    return {
+      filteredSignInLogs: filteredSignInLogs,
+      totalLogs: Math.ceil(Number(totalLogs[0]?.count) / ITEMS_PER_PAGE),
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch user logs.');
+  }
+}
+
 export async function fetchUserLogs(
   orgId: string,
   query: string,
   currentPage: number,
+  operation: string,
 ) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -79,6 +134,7 @@ export async function fetchUserLogs(
 
     const filteredUserLogs = await prisma.$queryRaw`
       SELECT * FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
+      users_log.operation_performed = ${operation}  AND
       (users_log.user_acted_name ILIKE ${`%${query}%`} OR users_log.user_subject ILIKE ${`%${query}%`} ) 
       ORDER BY "createdAt" DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
@@ -87,6 +143,7 @@ export async function fetchUserLogs(
     const totalUserLogs = await prisma.$queryRaw`
       SELECT count(*)
       FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
+      users_log.operation_performed = ${operation}  AND
       (users_log.user_acted_name ILIKE ${`%${query}%`} OR users_log.user_subject ILIKE ${`%${query}%`} )
     `;
 

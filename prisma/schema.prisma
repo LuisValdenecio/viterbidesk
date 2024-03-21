@@ -20,6 +20,7 @@ model User {
   userToOrganization UserToOrganization?
   usersLog UsersLog?
   articlesLog ArticlesLog?
+  signInLog SignInLog?
 
   activateToken ActivateToken?
   createdAt DateTime @default(now())
@@ -39,6 +40,18 @@ model Article {
   @@map("articles")  
 }
 
+model SignInLog {
+  id  String  @id @default(cuid()) 
+  user_id String @unique
+  createdAt DateTime @default(now())
+  user_name String
+  org_id String @unique
+
+  org Organization @relation(fields: [org_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("signin_log")
+}
 
 // create a model for token-activation with an id and a user_id fields 
 model ActivateToken {
@@ -119,6 +132,7 @@ model Organization {
   email String? @unique
   role Role?
   usersLog UsersLog?
+  signinLog SignInLog?
   articlesLog ArticlesLog?
   userToOrganization UserToOrganization?
   createdAt DateTime @default(now())

@@ -1,12 +1,11 @@
 'use server';
 
 import { unstable_noStore as noStore } from 'next/cache';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/[...nextauth]';
 import { organizationStore } from '@/store/organization';
+import prisma_global_instance from '@/db';
 
-const prisma = new PrismaClient();
 const ITEMS_PER_PAGE = 6;
 
 export async function fetchCustomers() {
@@ -14,7 +13,7 @@ export async function fetchCustomers() {
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
   noStore();
   try {
-    const customers = await prisma.user.findMany();
+    const customers = await prisma_global_instance.user.findMany();
     return customers;
   } catch (error) {
     console.error('Database Error:', error);
@@ -28,14 +27,15 @@ export async function fetchInvitationToken(token: string) {
   await new Promise((resolve) => setTimeout(resolve, 5000));
 
   try {
-    const invitationToken = await prisma.activateToken.findUnique({
-      where: {
-        token: token,
-      },
-      select: {
-        activated: true,
-      },
-    });
+    const invitationToken =
+      await prisma_global_instance.activateToken.findUnique({
+        where: {
+          token: token,
+        },
+        select: {
+          activated: true,
+        },
+      });
 
     return !invitationToken?.activated;
   } catch (error) {
@@ -49,7 +49,7 @@ export async function fetchOrganizations() {
   const session = await getServerSession(authOptions);
 
   try {
-    const organizations = await prisma.$queryRaw`
+    const organizations = await prisma_global_instance.$queryRaw`
     SELECT organizations.name, organizations.id, users_to_organizations.role_name
     FROM organizations
     INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
@@ -68,7 +68,7 @@ export async function fetchUserNameAndEmail() {
   const session = await getServerSession(authOptions);
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma_global_instance.user.findUnique({
       where: {
         id: session?.user?.id,
       },
@@ -93,7 +93,7 @@ export async function fetchSignInLogs(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const filteredSignInLogs = await prisma.$queryRaw`
+    const filteredSignInLogs = await prisma_global_instance.$queryRaw`
       SELECT user_id, org_id, user_name, "createdAt" FROM signin_log 
         WHERE signin_log.org_id = ${orgId} AND
         user_name ILIKE ${`%${query}%`} 
@@ -101,7 +101,7 @@ export async function fetchSignInLogs(
         LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
         `;
 
-    const totalLogs = await prisma.$queryRaw`
+    const totalLogs = await prisma_global_instance.$queryRaw`
       SELECT count(*) FROM signin_log 
         WHERE signin_log.org_id = ${orgId} AND
         user_name ILIKE ${`%${query}%`}`;
@@ -126,13 +126,13 @@ export async function fetchUserLogs(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const userLogs = await prisma.usersLog.findMany({
+    const userLogs = await prisma_global_instance.usersLog.findMany({
       where: {
         org_user_belongs_to: orgId,
       },
     });
 
-    const filteredUserLogs = await prisma.$queryRaw`
+    const filteredUserLogs = await prisma_global_instance.$queryRaw`
       SELECT * FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
       users_log.operation_performed = ${operation}  AND
       (users_log.user_acted_name ILIKE ${`%${query}%`} OR users_log.user_subject ILIKE ${`%${query}%`} ) 
@@ -140,7 +140,7 @@ export async function fetchUserLogs(
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    const totalUserLogs = await prisma.$queryRaw`
+    const totalUserLogs = await prisma_global_instance.$queryRaw`
       SELECT count(*)
       FROM users_log WHERE users_log.org_user_belongs_to = ${orgId} AND
       users_log.operation_performed = ${operation}  AND
@@ -166,25 +166,27 @@ export async function fetchDefaultOrganization() {
 
   const session = await getServerSession(authOptions);
 
-  let orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
-    where: {
-      user_id: session?.user?.id,
-      role_name: 'owner',
-    },
-    select: {
-      org_id: true,
-    },
-  });
-
-  if (!orgOwnedByLoggedInUser) {
-    orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
+  let orgOwnedByLoggedInUser =
+    await prisma_global_instance.userToOrganization.findFirst({
       where: {
         user_id: session?.user?.id,
+        role_name: 'owner',
       },
       select: {
         org_id: true,
       },
     });
+
+  if (!orgOwnedByLoggedInUser) {
+    orgOwnedByLoggedInUser =
+      await prisma_global_instance.userToOrganization.findFirst({
+        where: {
+          user_id: session?.user?.id,
+        },
+        select: {
+          org_id: true,
+        },
+      });
   }
 
   return orgOwnedByLoggedInUser?.org_id;
@@ -208,29 +210,31 @@ export async function fetchAgents(
     let orgOwnedByLoggedInUser = { org_id: activeOrgId };
 
     if (!activeOrgId) {
-      orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
-        where: {
-          user_id: session?.user?.id,
-          role_name: 'owner',
-        },
-        select: {
-          org_id: true,
-        },
-      });
-
-      if (!orgOwnedByLoggedInUser) {
-        orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
+      orgOwnedByLoggedInUser =
+        await prisma_global_instance.userToOrganization.findFirst({
           where: {
             user_id: session?.user?.id,
+            role_name: 'owner',
           },
           select: {
             org_id: true,
           },
         });
+
+      if (!orgOwnedByLoggedInUser) {
+        orgOwnedByLoggedInUser =
+          await prisma_global_instance.userToOrganization.findFirst({
+            where: {
+              user_id: session?.user?.id,
+            },
+            select: {
+              org_id: true,
+            },
+          });
       }
     }
 
-    const allUsers = await prisma.$queryRaw`
+    const allUsers = await prisma_global_instance.$queryRaw`
     SELECT
       users.id,
       users.name,
@@ -246,7 +250,7 @@ export async function fetchAgents(
     ORDER BY users.name DESC
   `;
 
-    const limitedUsers = await prisma.$queryRaw`
+    const limitedUsers = await prisma_global_instance.$queryRaw`
       SELECT
         users.id,
         users.name,
@@ -264,7 +268,7 @@ export async function fetchAgents(
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    const totalUsers = await prisma.$queryRaw`
+    const totalUsers = await prisma_global_instance.$queryRaw`
     SELECT count(*)
     FROM users
     JOIN users_to_organizations ON users.id = users_to_organizations.user_id
@@ -290,7 +294,7 @@ export async function fetchAgentById(id: string) {
   noStore();
 
   try {
-    const agent = await prisma.user.findUnique({
+    const agent = await prisma_global_instance.user.findUnique({
       where: {
         id: id,
       },
@@ -308,7 +312,7 @@ export async function fetchUserInvitationToken(token: string) {
   noStore();
 
   try {
-    const user_id = await prisma.activateToken.findUnique({
+    const user_id = await prisma_global_instance.activateToken.findUnique({
       where: {
         token: token,
       },
@@ -317,7 +321,7 @@ export async function fetchUserInvitationToken(token: string) {
       },
     });
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma_global_instance.user.findUnique({
       where: {
         id: user_id?.user_id,
       },

@@ -5,15 +5,14 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/[...nextauth]';
-import { Organization, PrismaClient, User } from '@prisma/client';
+import { Organization, User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { sendEmail } from './email';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { compare } from 'bcrypt';
 import { format } from 'date-fns';
-
-const prisma = new PrismaClient();
+import prisma_global_instance from '@/db';
 
 const AgentFormSchema = z.object({
   agentName: z.string().min(1, {
@@ -72,7 +71,7 @@ export async function changePassword(formData: FormData) {
   const newPassword = formData.get('new_password');
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma_global_instance.user.findUnique({
       where: {
         id: session?.user?.id,
       },
@@ -86,7 +85,7 @@ export async function changePassword(formData: FormData) {
       const hashedPassword = await hash(newPassword as string, 10);
       console.log('pass match');
 
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await prisma_global_instance.user.update({
         data: {
           password: hashedPassword,
         },
@@ -134,17 +133,18 @@ export async function createOrganization(
 
   try {
     // create an org and assign ownership rights to the loggedin user
-    const newOrganization: Organization = await prisma.organization.create({
-      data: {
-        name: organizationName,
-        userToOrganization: {
-          create: {
-            user_id: session?.user?.id,
-            role_name: 'owner',
+    const newOrganization: Organization =
+      await prisma_global_instance.organization.create({
+        data: {
+          name: organizationName,
+          userToOrganization: {
+            create: {
+              user_id: session?.user?.id,
+              role_name: 'owner',
+            },
           },
         },
-      },
-    });
+      });
 
     // update session so that it also contains the newly created organization id
     //await fetch(`/api/auth/session?organizationId=${newOrganization.id}`)
@@ -161,7 +161,7 @@ export async function createOrganization(
 
 export async function isOwnerOfOrganization(userId: string, orgId: string) {
   try {
-    const isOwner = await prisma.userToOrganization.findFirst({
+    const isOwner = await prisma_global_instance.userToOrganization.findFirst({
       where: {
         user_id: userId,
         org_id: orgId,
@@ -185,19 +185,20 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
     let orgOwnedByLoggedInUser = { org_id: activeOrgId };
 
     if (!activeOrgId) {
-      orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
-        where: {
-          user_id: session?.user?.id,
-          role_name: 'owner',
-        },
-        select: {
-          org_id: true,
-        },
-      });
+      orgOwnedByLoggedInUser =
+        await prisma_global_instance.userToOrganization.findFirst({
+          where: {
+            user_id: session?.user?.id,
+            role_name: 'owner',
+          },
+          select: {
+            org_id: true,
+          },
+        });
     }
 
     emails.map(async (email: string) => {
-      const newUser: User = await prisma.user.create({
+      const newUser: User = await prisma_global_instance.user.create({
         data: {
           name: 'Someone',
           email: email,
@@ -217,15 +218,16 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
 
 export async function createAgent(prevState: StateAgent, formData: FormData) {
   const session = await getServerSession(authOptions);
-  const orgOwnedByLoggedInUser = await prisma.userToOrganization.findFirst({
-    where: {
-      user_id: session?.user?.id,
-      role_name: 'owner',
-    },
-    select: {
-      org_id: true,
-    },
-  });
+  const orgOwnedByLoggedInUser =
+    await prisma_global_instance.userToOrganization.findFirst({
+      where: {
+        user_id: session?.user?.id,
+        role_name: 'owner',
+      },
+      select: {
+        org_id: true,
+      },
+    });
 
   const validatedFields = CreateNewAgent.safeParse({
     agentEmail: formData.get('email'),
@@ -246,7 +248,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
 
   try {
     // write a prsima query to search for a user with the agentEmail
-    const isEmailRepeated: User = await prisma.user.findUnique({
+    const isEmailRepeated: User = await prisma_global_instance.user.findUnique({
       where: {
         email: agentEmail,
       },
@@ -261,7 +263,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       };
     }
 
-    const newUser: User = await prisma.user.create({
+    const newUser: User = await prisma_global_instance.user.create({
       data: {
         email: agentEmail,
         userToOrganization: {
@@ -278,7 +280,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       },
     });
 
-    const userToken = await prisma.activateToken.findUnique({
+    const userToken = await prisma_global_instance.activateToken.findUnique({
       where: {
         user_id: newUser.id,
       },
@@ -293,7 +295,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
     });
 
-    await prisma.usersLog.create({
+    await prisma_global_instance.usersLog.create({
       data: {
         user_acted_id: session?.user?.id,
         user_acted_name: session?.user?.name,
@@ -322,7 +324,7 @@ export async function registerSignIn(orgId: string) {
 
   try {
     // register logs once for day for each user
-    const lastSignIn = await prisma.signInLog.findMany({
+    const lastSignIn = await prisma_global_instance.signInLog.findMany({
       where: {
         user_id: session?.user?.id,
         org_id: orgId,
@@ -342,7 +344,7 @@ export async function registerSignIn(orgId: string) {
         format(lastSignIn[0]?.createdAt, 'yyyy-MM-dd') !==
         format(new Date(), 'yyyy-MM-dd')
       ) {
-        await prisma.signInLog.create({
+        await prisma_global_instance.signInLog.create({
           data: {
             user_id: session?.user?.id,
             org_id: orgId,
@@ -353,7 +355,7 @@ export async function registerSignIn(orgId: string) {
         console.log('already signed');
       }
     } else {
-      await prisma.signInLog.create({
+      await prisma_global_instance.signInLog.create({
         data: {
           user_id: session?.user?.id,
           org_id: orgId,
@@ -368,15 +370,16 @@ export async function registerSignIn(orgId: string) {
 
 export async function setActiveOrganization(userId: string) {
   try {
-    const activeOrganization = await prisma.userToOrganization.findMany({
-      where: {
-        user_id: userId,
-        role_name: 'owner',
-      },
-      select: {
-        org_id: true,
-      },
-    });
+    const activeOrganization =
+      await prisma_global_instance.userToOrganization.findMany({
+        where: {
+          user_id: userId,
+          role_name: 'owner',
+        },
+        select: {
+          org_id: true,
+        },
+      });
 
     return activeOrganization;
   } catch (error) {
@@ -389,7 +392,7 @@ export async function resendInvitation(id: string, orgId: string) {
 
   try {
     // fetch the user email and set to a constant named agentEmail
-    const user = await prisma.user.findUnique({
+    const user = await prisma_global_instance.user.findUnique({
       where: {
         id: id,
       },
@@ -400,7 +403,7 @@ export async function resendInvitation(id: string, orgId: string) {
     });
 
     // update the token associated with the user id to a new token
-    const newUserToken = await prisma.activateToken.update({
+    const newUserToken = await prisma_global_instance.activateToken.update({
       where: {
         user_id: id,
       },
@@ -421,7 +424,7 @@ export async function resendInvitation(id: string, orgId: string) {
       };
     }
 
-    await prisma.usersLog.create({
+    await prisma_global_instance.usersLog.create({
       data: {
         user_acted_id: session?.user?.id,
         user_acted_name: session?.user?.name,
@@ -460,7 +463,7 @@ export async function updateUserRole(
   const { userRole } = validatedFields.data;
 
   try {
-    const updateAgent = await prisma.userToOrganization.update({
+    const updateAgent = await prisma_global_instance.userToOrganization.update({
       where: {
         user_id: id,
         org_id: formData.get('org_id') as string,
@@ -470,7 +473,7 @@ export async function updateUserRole(
       },
     });
 
-    await prisma.usersLog.create({
+    await prisma_global_instance.usersLog.create({
       data: {
         user_acted_id: session?.user?.id,
         user_acted_name: session?.user?.name,
@@ -515,7 +518,7 @@ export async function updateAgent(
   const { agentEmail, agentName } = validatedFields.data;
 
   try {
-    const updateAgent = await prisma.user.update({
+    const updateAgent = await prisma_global_instance.user.update({
       where: {
         id: id,
       },
@@ -525,7 +528,7 @@ export async function updateAgent(
       },
     });
 
-    await prisma.usersLog.create({
+    await prisma_global_instance.usersLog.create({
       data: {
         user_acted_id: session?.user?.id,
         user_acted_name: session?.user?.name,
@@ -549,13 +552,15 @@ export async function deleteAgent(id: string, orgId: string) {
   const session = await getServerSession(authOptions);
 
   try {
-    const deletedAgent = await prisma.userToOrganization.delete({
-      where: {
-        user_id: id,
+    const deletedAgent = await prisma_global_instance.userToOrganization.delete(
+      {
+        where: {
+          user_id: id,
+        },
       },
-    });
+    );
 
-    const actingUserName = await prisma.user.findFirst({
+    const actingUserName = await prisma_global_instance.user.findFirst({
       where: {
         id: session?.user?.id,
       },
@@ -564,7 +569,7 @@ export async function deleteAgent(id: string, orgId: string) {
       },
     });
 
-    await prisma.usersLog.create({
+    await prisma_global_instance.usersLog.create({
       data: {
         user_acted_id: session?.user?.id,
         user_acted_name: actingUserName?.name,
@@ -596,7 +601,7 @@ export async function setUpInvitation(
 
     const hashedPassword = await hash(password as string, 10);
 
-    await prisma.user.update({
+    await prisma_global_instance.user.update({
       where: {
         id: id,
       },
@@ -608,7 +613,7 @@ export async function setUpInvitation(
     });
 
     // only when the user setups up account set the date:
-    await prisma.activateToken.update({
+    await prisma_global_instance.activateToken.update({
       where: {
         token,
       },

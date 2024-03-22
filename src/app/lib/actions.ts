@@ -10,6 +10,7 @@ import { hash } from 'bcrypt';
 import { sendEmail } from './email';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
+import { compare } from 'bcrypt';
 import { format } from 'date-fns';
 
 const prisma = new PrismaClient();
@@ -64,6 +65,53 @@ export type StateAgent = {
   };
   message?: string | null;
 };
+
+export async function changePassword(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  const oldPassword = formData.get('old_password');
+  const newPassword = formData.get('new_password');
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session?.user?.id,
+      },
+    });
+
+    console.log(oldPassword);
+    const passwordsMatch = await compare(oldPassword, user.password);
+    console.log(passwordsMatch);
+
+    if (passwordsMatch) {
+      const hashedPassword = await hash(newPassword as string, 10);
+      console.log('pass match');
+
+      const updatedUser = await prisma.user.update({
+        data: {
+          password: hashedPassword,
+        },
+        where: {
+          id: session?.user?.id,
+        },
+      });
+
+      if (updatedUser) {
+        return {
+          message: 'password updated successfully',
+        };
+      }
+    } else {
+      console.log('pass dont match');
+      return {
+        message: 'the old password is incorrect',
+      };
+    }
+  } catch (error) {
+    return {
+      message: "Operation failed : couldn't change password",
+    };
+  }
+}
 
 export async function createOrganization(
   prevState: StateCustomer,
@@ -274,7 +322,7 @@ export async function registerSignIn(orgId: string) {
 
   try {
     // register logs once for day for each user
-    const lastSignIn = await prisma.signInLog.findUnique({
+    const lastSignIn = await prisma.signInLog.findMany({
       where: {
         user_id: session?.user?.id,
         org_id: orgId,
@@ -282,11 +330,16 @@ export async function registerSignIn(orgId: string) {
       select: {
         createdAt: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    if (lastSignIn) {
+    console.log(lastSignIn[0]);
+
+    if (lastSignIn[0]) {
       if (
-        format(lastSignIn?.createdAt, 'yyyy-MM-dd') !==
+        format(lastSignIn[0]?.createdAt, 'yyyy-MM-dd') !==
         format(new Date(), 'yyyy-MM-dd')
       ) {
         await prisma.signInLog.create({

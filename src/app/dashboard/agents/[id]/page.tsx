@@ -1,14 +1,33 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useContext, useEffect } from 'react';
+import { FormEvent, useContext, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 //@ts-ignore
 import { useFormState } from 'react-dom';
 import { useState } from 'react';
-import { updateAgent } from '@/app/lib/actions';
+import { changePassword, updateAgent } from '@/app/lib/actions';
 import { OrganizationContext } from '../../activeOrganizationProvider';
 import { fetchUserNameAndEmail } from '@/lib/data';
+import { Progress } from 'rsup-progress';
+import ChangePasswordDialog from '@/components/ChangePasswordDialog';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+//@ts-ignore
+import { useFormStatus } from 'react-dom';
+import { CheckBadgeIcon } from '@heroicons/react/24/solid';
+
+function Submit() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+    >
+      {pending ? 'Sending...' : 'Update password'}
+    </button>
+  );
+}
 
 const ProfileInformation = ({
   isAccountOwner,
@@ -184,7 +203,68 @@ const LogoutAllDevices = () => {
   );
 };
 
+const progress = new Progress({
+  height: 3,
+  color: 'linear-gradient(to right, #00f260, #0575e6)',
+});
+
 const ChangePassWord = () => {
+  const [showPasswordsDontMatchError, setShowPasswordsDontMatchError] =
+    useState(false);
+  const [showInsecurePasswordError, setShowInsecurePasswordError] =
+    useState(false);
+  const [showIncorrectOldPassword, setShowIncorrectOldPassword] =
+    useState(false);
+  const [showPasswordChangeSuccess, setShowPasswordChaneSuccess] =
+    useState(false);
+
+  const handlePendingFormState = (pending: boolean) => {
+    if (pending) {
+      progress.start();
+    } else {
+      progress.end();
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    //const { pending } = useFormStatus();
+    //console.log(pending);
+    const formData = new FormData(e.currentTarget);
+    const pasword = formData.get('new_password') as string;
+    const reTypedPassword = formData.get('confirm_password') as string;
+
+    if (pasword !== reTypedPassword) {
+      setShowPasswordsDontMatchError(true);
+      setShowInsecurePasswordError(false);
+      setShowIncorrectOldPassword(false);
+      setShowPasswordChaneSuccess(false);
+    } else {
+      if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(pasword)) {
+        setShowInsecurePasswordError(true);
+        setShowPasswordsDontMatchError(false);
+        setShowIncorrectOldPassword(false);
+        setShowPasswordChaneSuccess(false);
+      } else {
+        setShowInsecurePasswordError(false);
+        setShowPasswordsDontMatchError(false);
+
+        const response = await changePassword(formData);
+        if (response?.message === 'the old password is incorrect') {
+          setShowIncorrectOldPassword(true);
+          setShowInsecurePasswordError(false);
+          setShowPasswordsDontMatchError(false);
+          setShowPasswordChaneSuccess(false);
+        } else if (response?.message === 'password updated successfully') {
+          setShowInsecurePasswordError(false);
+          setShowPasswordsDontMatchError(false);
+          setShowIncorrectOldPassword(false);
+          setShowPasswordChaneSuccess(true);
+        }
+      }
+    }
+  };
+
   return (
     <>
       <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
@@ -197,21 +277,22 @@ const ChangePassWord = () => {
           </p>
         </div>
 
-        <form className="md:col-span-2">
+        <form onSubmit={handleSubmit} className="md:col-span-2">
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
             <div className="col-span-full">
               <label
-                htmlFor="current-password"
+                htmlFor="new-password"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
               >
-                Current password
+                Old password
               </label>
               <div className="mt-2">
                 <input
-                  id="current-password"
-                  name="current_password"
+                  id="new-password"
+                  name="old_password"
                   type="password"
-                  autoComplete="current-password"
+                  required
+                  autoComplete="new-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-white/5 dark:text-white dark:ring-white/10 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -229,6 +310,7 @@ const ChangePassWord = () => {
                   id="new-password"
                   name="new_password"
                   type="password"
+                  required
                   autoComplete="new-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-white/5 dark:text-white dark:ring-white/10 sm:text-sm sm:leading-6"
                 />
@@ -240,27 +322,80 @@ const ChangePassWord = () => {
                 htmlFor="confirm-password"
                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
               >
-                Confirm password
+                Confirm new password
               </label>
               <div className="mt-2">
                 <input
                   id="confirm-password"
                   name="confirm_password"
                   type="password"
+                  required
                   autoComplete="new-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-white/5 dark:text-white dark:ring-white/10 sm:text-sm sm:leading-6"
                 />
               </div>
+
+              {showPasswordsDontMatchError && (
+                <div
+                  className="flex h-8 items-end space-x-1 mt-2"
+                  id="name-error"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                  <p className="mt-2 text-sm text-red-500" key="fdfdfd">
+                    The passwords do not match.
+                  </p>
+                </div>
+              )}
+
+              {showIncorrectOldPassword && (
+                <div
+                  className="flex h-8 items-end space-x-1 mt-2"
+                  id="name-error"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                  <p className="mt-2 text-sm text-red-500" key="fdfdfd">
+                    The old password is incorrect
+                  </p>
+                </div>
+              )}
+
+              {showInsecurePasswordError && (
+                <div
+                  className="flex h-8 items-end space-x-1 mt-2"
+                  id="name-error"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                  <p className="mt-2 text-sm text-red-500" key="fdfdfd">
+                    Please choose an alphanumeric password with a minimum of 8
+                    characters.
+                  </p>
+                </div>
+              )}
+
+              {showPasswordChangeSuccess && (
+                <div
+                  className="flex h-8 items-end space-x-1 mt-2"
+                  id="name-error"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <CheckBadgeIcon className="h-5 w-5 text-green-500" />
+                  <p className="mt-2 text-sm text-green-500" key="fdfdfd">
+                    Password changed successfully
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="mt-8 flex">
-            <button
-              type="submit"
-              className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-            >
-              Save
-            </button>
+            <Submit />
           </div>
         </form>
       </div>
@@ -313,6 +448,7 @@ const ChangeProfileName = () => {
                   id="current-password"
                   name="email"
                   type="email"
+                  required
                   autoComplete="current-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-white/5 dark:text-white dark:ring-white/10 sm:text-sm sm:leading-6"
                   defaultValue={activeAgent?.email as string}
@@ -338,6 +474,7 @@ const ChangeProfileName = () => {
                   id="new-password"
                   name="name"
                   type="text"
+                  required
                   autoComplete="new-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-white/5 dark:text-white dark:ring-white/10 sm:text-sm sm:leading-6"
                   defaultValue={activeAgent?.name as string}

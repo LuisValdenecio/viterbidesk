@@ -47,6 +47,7 @@ export const handler = NextAuth({
           const { email, password } = parsedCredentials.data;
           const user = await getUser(email);
           if (!user) return null;
+          console.log(password);
           const passwordsMatch = await compare(password, user.password);
 
           if (!user.active) {

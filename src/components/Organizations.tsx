@@ -2,7 +2,7 @@
 
 import GetAgentsData from './GetAgentsData';
 import { Suspense, useContext, useEffect, useState } from 'react';
-import { fetchAgents } from '@/lib/data';
+import { fetchAgents, fetchOrganizations } from '@/lib/data';
 import { UserSkeleton } from './Skeletons';
 import Pagination from './Pagination';
 import { Disclosure, Menu } from '@headlessui/react';
@@ -15,6 +15,8 @@ import { useDebouncedCallback } from 'use-debounce';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
+import GetOrganizationsData from './GetOrganizationsData';
+import CreateOrganisationModal from './CreateOrganisationModal';
 
 const filters = {
   users: [
@@ -25,7 +27,7 @@ const filters = {
   ],
 };
 
-export default function Agents({
+export default function Organization({
   query,
   currentPage,
 }: {
@@ -50,6 +52,7 @@ export default function Agents({
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   const [isEmailDialogOpen, openEmailDialog] = useState(false);
+  const [isCreateOrgModalOpen, setCreateOrgModalOpen] = useState(false);
   const [emailInvitations, setEmailInvitations] = useState(initialEmails);
 
   const handleUserRoleUpdate = useDebouncedCallback((value: string) => {
@@ -63,10 +66,10 @@ export default function Agents({
 
   useEffect(() => {
     const fetchData = async () => {
-      allUsers = await fetchAgents(activeOrg, query, currentPage);
-      setUsers(allUsers.users);
-      setAllUsers(allUsers.allUsers);
-      setAllPages(allUsers.totalUsers);
+      allUsers = await fetchOrganizations(query, currentPage);
+      setUsers(allUsers.selectedOrganizations);
+      setAllUsers(allUsers.organizations);
+      setAllPages(allUsers.totalOrganizations);
       console.log(allFetchedUsers);
     };
 
@@ -81,6 +84,10 @@ export default function Agents({
     openEmailDialog(true);
   };
 
+  const openCreateOrgModal = () => {
+    setCreateOrgModalOpen(true);
+  };
+
   const handleDataFromInvitationDialog = (data: string[]) => {
     setEmailInvitations(data);
   };
@@ -91,6 +98,11 @@ export default function Agents({
         open={isEmailDialogOpen}
         parentCallBack={handleDataFromInvitationDialog}
         close={() => openEmailDialog(false)}
+      />
+      <CreateOrganisationModal
+        open={isCreateOrgModalOpen}
+        parentCallBack={() => {}}
+        close={() => setCreateOrgModalOpen(false)}
       />
       <div className="bg-white flex justify-between">
         {/* Filters */}
@@ -117,7 +129,7 @@ export default function Agents({
                 <div className="col-start-1 row-start-1">
                   <div className="mx-auto flex max-w-7xl justify-end  ">
                     <Menu as="div" className="relative inline-block">
-                      <UserSearch placeholder="search for user..." />
+                      <UserSearch placeholder="search for any organization" />
                     </Menu>
                   </div>
                 </div>
@@ -160,37 +172,34 @@ export default function Agents({
             </div>
           </Disclosure.Panel>
         </Disclosure>
-        {allFetchedUsers.filter(
-          (agent) =>
-            agent.id === session.data?.user?.id && agent.role_name === 'owner',
-        ).length !== 0 && (
-          <div className="col-start-1 row-start-1 py-10">
-            <div className="mx-auto flex max-w-7xl justify-end">
-              <button
-                onClick={() => openDialog()}
-                type="button"
-                className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                <ArrowUpIcon
-                  className="-ml-0.5 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-                agents.csv
-              </button>
 
-              <Link
-                href="/dashboard/agents/new"
-                id="step-4"
-                className="ml-3 cursor-pointer inline-flex items-center rounded-md bg-indigo-600 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Add agent
-              </Link>
-            </div>
+        <div className="col-start-1 row-start-1 py-10">
+          <div className="mx-auto flex max-w-7xl justify-end">
+            <button
+              onClick={() => openDialog()}
+              type="button"
+              className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              <ArrowUpIcon
+                className="-ml-0.5 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              add .csv file
+            </button>
+
+            <button
+              onClick={() => openCreateOrgModal()}
+              type="button"
+              id="step-4"
+              className="ml-3 cursor-pointer inline-flex items-center rounded-md bg-indigo-600 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Add organization
+            </button>
           </div>
-        )}
+        </div>
       </div>
       <Suspense fallback={<UserSkeleton />}>
-        <GetAgentsData agents={users} allUsers={allFetchedUsers} />
+        <GetOrganizationsData agents={users} allUsers={allFetchedUsers} />
       </Suspense>
       <div className="flex justify-center">
         <Pagination totalPages={allPages} />

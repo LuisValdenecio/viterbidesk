@@ -24,14 +24,15 @@ const AgentFormSchema = z.object({
 });
 
 const NewAgentFormSchema = z.object({
-  agentEmail: z.string().email({
-    message: 'Please enter a valid email address.',
-  }),
-  userRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
-    invalid_type_error: 'Please select a role for this agent.',
-  }),
   getOrganizationId: z.string().min(25, {
     message: 'Please provide the id for the organization',
+  }),
+  userEmail: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+
+  userRole: z.enum(['admin', 'owner', 'agent', 'customer'], {
+    invalid_type_error: 'Please select a role for this agent.',
   }),
 });
 
@@ -64,6 +65,140 @@ export type StateAgent = {
   };
   message?: string | null;
 };
+
+export async function fetchOTP(userId: string) {
+  try {
+    const otp = await prisma_global_instance.oTP.findFirst({
+      where: {
+        user_id: userId,
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    return otp?.password;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function resendOTP(userId: string, userEmail: string) {
+  try {
+    const OTP = `${Math.floor(Math.random() * 10)}${Math.floor(
+      Math.random() * 10,
+    )}${Math.floor(Math.random() * 10)}${Math.floor(
+      Math.random() * 10,
+    )}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
+
+    await prisma_global_instance.oTP.update({
+      where: {
+        user_id: userId,
+      },
+      data: {
+        password: OTP,
+      },
+    });
+
+    const emailResult = await sendEmail({
+      recipientEmail: [userEmail],
+      userId: userId,
+      message: `Verification code : ${OTP}`,
+    });
+
+    return emailResult;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function registerNewUser(formData: FormData) {
+  try {
+    //const { name, email, telefone, password } = await request.json();
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const hashedPassword = await hash(password, 10);
+
+    //console.log({ name, email, telefone, password });
+
+    const isEmailRepeated = await prisma_global_instance.user.findUnique({
+      where: {
+        email: email,
+      },
+      select: {
+        email: true,
+      },
+    });
+
+    if (isEmailRepeated?.email) {
+      return {
+        message: 'Email already exists on the system',
+      };
+    }
+
+    const user = await prisma_global_instance.user.create({
+      data: {
+        name: name,
+        email: email,
+        password: hashedPassword,
+        active: true,
+        activateToken: {
+          create: {
+            token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ''),
+            activated: new Date(),
+          },
+        },
+      },
+    });
+
+    const userToken = await prisma_global_instance.activateToken.findUnique({
+      where: {
+        user_id: user.id,
+      },
+      select: {
+        token: true,
+      },
+    });
+
+    const OTP = `${Math.floor(Math.random() * 10)}${Math.floor(
+      Math.random() * 10,
+    )}${Math.floor(Math.random() * 10)}${Math.floor(
+      Math.random() * 10,
+    )}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
+
+    const emailResult = await sendEmail({
+      recipientEmail: [email],
+      userId: user.id,
+      message: `Verification code : ${OTP}`,
+    });
+
+    console.log(emailResult);
+
+    if (emailResult?.message === 'Email was delivered') {
+      await prisma_global_instance.oTP.create({
+        data: {
+          password: OTP,
+          user_id: user.id,
+        },
+      });
+    } else {
+      return {
+        message: 'We couldnt send the verification code',
+      };
+    }
+
+    return {
+      message: 'account registered successfuly',
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      message: 'error',
+    };
+  }
+}
 
 export async function changePassword(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -227,10 +362,13 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
       select: {
         org_id: true,
       },
+      orderBy: {
+        createdAt: 'desc', // Sort by createdAt column in descending order
+      },
     });
 
   const validatedFields = CreateNewAgent.safeParse({
-    agentEmail: formData.get('email'),
+    userEmail: formData.get('email'),
     userRole: formData.get('role'),
     getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
   });
@@ -244,13 +382,13 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { agentEmail, userRole, getOrganizationId } = validatedFields.data;
+  const { userEmail, userRole, getOrganizationId } = validatedFields.data;
 
   try {
     // write a prsima query to search for a user with the agentEmail
-    const isEmailRepeated: User = await prisma_global_instance.user.findUnique({
+    const isEmailRepeated = await prisma_global_instance.user.findUnique({
       where: {
-        email: agentEmail,
+        email: userEmail,
       },
       select: {
         email: true,
@@ -265,7 +403,7 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
 
     const newUser: User = await prisma_global_instance.user.create({
       data: {
-        email: agentEmail,
+        email: userEmail,
         userToOrganization: {
           create: {
             org_id: getOrganizationId,
@@ -290,9 +428,9 @@ export async function createAgent(prevState: StateAgent, formData: FormData) {
     });
 
     const emailResult = await sendEmail({
-      recipientEmail: agentEmail,
+      recipientEmail: [userEmail],
       userId: newUser.id,
-      message: `Click link to verify : http://localhost:3000/activate/${userToken?.token}`,
+      message: `Click link to verify : http://localhost:3000/invite-activate/${userToken?.token}`,
     });
 
     await prisma_global_instance.usersLog.create({
@@ -413,7 +551,7 @@ export async function resendInvitation(id: string, orgId: string) {
     });
 
     const resendResult = await sendEmail({
-      recipientEmail: user?.email,
+      recipientEmail: [user?.email],
       userId: id,
       message: `Click link to verify : http://localhost:3000/activate/${newUserToken?.token}`,
     });
@@ -552,13 +690,11 @@ export async function deleteAgent(id: string, orgId: string) {
   const session = await getServerSession(authOptions);
 
   try {
-    const deletedAgent = await prisma_global_instance.userToOrganization.delete(
-      {
-        where: {
-          user_id: id,
-        },
+    const deletedAgent = await prisma_global_instance.user.delete({
+      where: {
+        id: id,
       },
-    );
+    });
 
     const actingUserName = await prisma_global_instance.user.findFirst({
       where: {

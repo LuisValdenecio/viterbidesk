@@ -11,6 +11,7 @@ import { useIsInsideMobileNavigation } from '@/components/MobileNavigation';
 import { useSectionStore } from '@/components/SectionProvider';
 import { Tag } from '@/components/Tag';
 import { remToPx } from '@/lib/remToPx';
+import PopOverGuide from './PopOverGuide';
 
 interface NavGroup {
   title: string;
@@ -191,7 +192,8 @@ function NavigationGroup({
           {group.links.map((link) => (
             <motion.li key={link.href} layout="position" className="relative">
               <NavLink href={link.href} active={link.href === pathname}>
-                {link.title}
+                {link.title === 'Files' && <div id="step-7">{link.title}</div>}
+                {link.title !== 'Files' && <div>{link.title}</div>}
               </NavLink>
               <AnimatePresence mode="popLayout" initial={false}>
                 {link.href === pathname && sections.length > 0 && (
@@ -239,6 +241,7 @@ export const navigation: Array<NavGroup> = [
       { title: 'Dashboard', href: '/dashboard' },
       { title: 'History', href: '/dashboard/history' },
       { title: 'Users', href: '/dashboard/agents' },
+      { title: 'Organisations', href: '/dashboard/organisations' },
     ],
   },
 
@@ -269,10 +272,6 @@ export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
     <>
       <nav {...props}>
         <ul role="list">
-          <TopLevelNavItem href="/">API</TopLevelNavItem>
-          <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
-          <TopLevelNavItem href="#">Support</TopLevelNavItem>
-
           {navigation.map((group, groupIndex) => (
             <NavigationGroup
               key={group.title}

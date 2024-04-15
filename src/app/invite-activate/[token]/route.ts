@@ -5,8 +5,7 @@ import { NextRequest } from 'next/server';
 import { redirect } from 'next/navigation';
 import { getCsrfToken } from 'next-auth/react';
 import { authOptions } from '../../api/auth/[...nextauth]/[...nextauth]';
-
-const prisma = new PrismaClient();
+import prisma_global_instance from '@/db';
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +13,9 @@ export async function GET(
 ) {
   const { token } = params;
 
-  const user = await prisma.user.findFirst({
+  console.log(token);
+
+  const user = await prisma_global_instance.user.findFirst({
     where: {
       activateToken: {
         AND: [
@@ -38,5 +39,5 @@ export async function GET(
     redirect('/invalidtoken');
   }
 
-  redirect(`/setup/${token}`);
+  redirect(`/invite-setup/${token}`);
 }

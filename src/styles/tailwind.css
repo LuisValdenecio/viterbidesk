@@ -41,3 +41,12 @@ html {
 .full-width {
   width: 100%;
 }
+
+.phone-field {
+  mask-type: luminance;
+}
+
+.invite-modal {
+  width: 40rem;
+  height: 25rem;
+}

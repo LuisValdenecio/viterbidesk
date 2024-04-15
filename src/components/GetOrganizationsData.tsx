@@ -19,6 +19,7 @@ import { Progress } from 'rsup-progress';
 import { useSession } from 'next-auth/react';
 import { OrganizationContext } from '@/app/dashboard/activeOrganizationProvider';
 import EditUserDialog from '@/components/EditUserDialog';
+import { BuildingLibraryIcon } from '@heroicons/react/20/solid';
 
 const progress = new Progress({
   height: 3,
@@ -31,7 +32,7 @@ function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-const GetAgentsData: React.FC<{
+const GetOrganizationsData: React.FC<{
   agents: agent_data;
   allUsers: agent_data;
 }> = ({ agents, allUsers }) => {
@@ -133,15 +134,17 @@ const GetAgentsData: React.FC<{
           <li key={agent.email} className="flex justify-between gap-x-6 py-4">
             <div className="flex min-w-0 gap-x-4">
               {!agent.img && (
-                <span className="inline-block h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                  <svg
-                    className="h-full w-full text-gray-300"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </span>
+                <div
+                  className={classNames(
+                    'flex h-10 w-10 flex-none items-center justify-center rounded-lg',
+                    'bg-indigo-500',
+                  )}
+                >
+                  <BuildingLibraryIcon
+                    className="h-6 w-6 text-white"
+                    aria-hidden="true"
+                  />
+                </div>
               )}
 
               {agent.img && (
@@ -159,41 +162,13 @@ const GetAgentsData: React.FC<{
                       {agent.name}
                     </a>
                   )}
-
-                  {agent.email_sent && !agent.name && (
-                    <div className="flex text-sm">
-                      <span className="group inline-flex items-center text-gray-500 hover:text-gray-900">
-                        <CheckBadgeIcon
-                          className="h-5 w-5 text-green-400 "
-                          aria-hidden="true"
-                        />
-                        <span className="ml-1 text-green-400">
-                          Invitation sent
-                        </span>
-                      </span>
-                    </div>
-                  )}
-
-                  {!agent.email_sent && (
-                    <div className="flex text-sm">
-                      <span className="group inline-flex items-center text-gray-500 hover:text-gray-900">
-                        <ExclamationCircleIcon
-                          className="h-5 w-5 text-orange-400 "
-                          aria-hidden="true"
-                        />
-                        <span className="ml-2 text-orange-400">
-                          Invitation failed
-                        </span>
-                      </span>
-                    </div>
-                  )}
                 </p>
                 <p className="mt-1 flex text-xs leading-5 text-gray-500">
                   <a
                     href={`mailto:${agent.email}`}
                     className="truncate hover:underline"
                   >
-                    {agent.email}
+                    viterbi.viterbidesk.com
                   </a>
                 </p>
               </div>
@@ -220,91 +195,21 @@ const GetAgentsData: React.FC<{
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                    {allUsers.filter(
-                      (agent) =>
-                        agent.id === session.data?.user?.id &&
-                        agent.role_name === 'owner',
-                    ).length !== 0 &&
-                      !agent.name && (
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              onClick={async (event) =>
-                                await resendInvitationFn(event, agent.id)
-                              }
-                              className={classNames(
-                                active ? 'bg-gray-50' : '',
-                                'block px-3 py-1 text-sm leading-6 text-gray-900',
-                              )}
-                            >
-                              Re-invite
-                              <span className="sr-only">, {agent.name}</span>
-                            </a>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <Link
+                          href={`/dashboard/organisations/${agent?.id}`}
+                          className={classNames(
+                            'cursor-pointer',
+                            active ? 'bg-gray-50' : '',
+                            'block px-3 py-1 text-sm leading-6 text-gray-900',
                           )}
-                        </Menu.Item>
+                        >
+                          Edit
+                          <span className="sr-only">, {agent.name}</span>
+                        </Link>
                       )}
-
-                    {allUsers.filter(
-                      (agent) =>
-                        agent.id === session.data?.user?.id &&
-                        agent.role_name === 'owner',
-                    ).length !== 0 && (
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            onClick={(event) => openDialog(event, agent.id)}
-                            className={classNames(
-                              'cursor-pointer',
-                              active ? 'bg-gray-50' : '',
-                              'block px-3 py-1 text-sm leading-6 text-gray-900',
-                            )}
-                          >
-                            Delete
-                            <span className="sr-only">, {agent.name}</span>
-                          </a>
-                        )}
-                      </Menu.Item>
-                    )}
-
-                    {allUsers.filter(
-                      (agent) =>
-                        agent.id === session.data?.user?.id &&
-                        agent.role_name === 'owner',
-                    ).length !== 0 &&
-                      agent.name && (
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              onClick={(event) => openEditDialog(event, agent)}
-                              className={classNames(
-                                'cursor-pointer',
-                                active ? 'bg-gray-50' : '',
-                                'block px-3 py-1 text-sm leading-6 text-gray-900',
-                              )}
-                            >
-                              Edit
-                              <span className="sr-only">, {agent.name}</span>
-                            </a>
-                          )}
-                        </Menu.Item>
-                      )}
-
-                    {agent.name && (
-                      <Menu.Item>
-                        {({ active }) => (
-                          <Link
-                            href="#"
-                            className={classNames(
-                              active ? 'bg-gray-50' : '',
-                              'block px-3 py-1 text-sm leading-6 text-gray-900',
-                            )}
-                          >
-                            Chat
-                            <span className="sr-only">, {agent.name}</span>
-                          </Link>
-                        )}
-                      </Menu.Item>
-                    )}
+                    </Menu.Item>
                   </Menu.Items>
                 </Transition>
               </Menu>
@@ -316,4 +221,4 @@ const GetAgentsData: React.FC<{
   );
 };
 
-export default GetAgentsData;
+export default GetOrganizationsData;

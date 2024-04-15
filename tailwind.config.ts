@@ -7,6 +7,7 @@ import headlessuiPlugin from '@headlessui/tailwindcss';
 export default {
   content: [
     './src/**/*.{js,mjs,jsx,ts,tsx,mdx}',
+    'node_modules/flowbite-react/lib/esm/**/*.js',
     './node_modules/flowbite/**/*.js',
   ],
   darkMode: 'class',

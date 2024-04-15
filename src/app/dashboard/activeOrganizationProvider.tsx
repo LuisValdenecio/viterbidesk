@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { fetchDefaultOrganization } from '@/lib/data';
-import { getActiveOrgCookie, setActiveOrgCookie } from '../lib/actions';
 
 export const OrganizationContext = createContext({});
 

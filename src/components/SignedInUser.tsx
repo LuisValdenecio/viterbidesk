@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useContext } from 'react';
 import { Popover, Transition } from '@headlessui/react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
@@ -23,6 +23,7 @@ import OrganizationModal from './OrganizationModal';
 import { useSearchParams } from 'next/navigation';
 import ConfirmationBanner from './Banner';
 import InitialOrganizationModal from './InitialOrganizationModal';
+import { PopoverGuideContext } from '@/app/dashboard/popoverGuideProvider';
 
 const recentPosts = [
   {
@@ -36,6 +37,7 @@ const recentPosts = [
 
 export default function SignedInUser() {
   let organizations: Array<any> = [];
+  const popOverGuideStarted = useContext(PopoverGuideContext);
 
   const [data, setData] = useState(organizations);
   const [showChangedOrgModal, setShowChangedOrgModal] = useState(false);
@@ -55,8 +57,8 @@ export default function SignedInUser() {
 
   useEffect(() => {
     const fetchData = async () => {
-      organizations = await fetchOrganizations();
-      setData([...data, ...organizations]);
+      let organizations = await fetchOrganizations();
+      setData([...data, ...organizations?.organizations]);
     };
 
     fetchData().catch((e) => {
@@ -65,7 +67,7 @@ export default function SignedInUser() {
   }, []);
 
   return (
-    <div>
+    <div id="step-1">
       <button
         onClick={() => openDialog()}
         type="button"

@@ -17,13 +17,13 @@ export async function sendEmail({
   userId,
   message,
 }: {
-  recipientEmail: string;
+  recipientEmail: Array<string>;
   userId: string;
   message: string;
 }) {
   const params = {
     Source: 'ls04af@gmail.com',
-    Destination: { ToAddresses: [recipientEmail] },
+    Destination: { ToAddresses: [...recipientEmail] },
     Message: {
       Subject: { Data: 'Account verification' },
       Body: { Text: { Data: message } },
@@ -40,9 +40,6 @@ export async function sendEmail({
         code: 500,
       };
     } else {
-      console.log('survived');
-      console.log(userId);
-
       await prisma.activateToken.update({
         where: {
           user_id: userId,

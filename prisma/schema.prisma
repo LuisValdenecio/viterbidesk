@@ -14,10 +14,11 @@ model User {
   id  String  @id @default(cuid()) 
   name String? @db.VarChar(255)
   img String? @db.VarChar(255)
-  email String? @unique
+  email String? @unique 
   active Boolean @default(false)
   password String?
   userToOrganization UserToOrganization?
+  top OTP?
   usersLog UsersLog?
   articlesLog ArticlesLog?
   signInLog SignInLog?
@@ -27,6 +28,19 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+model OTP {
+  id String  @id @default(cuid()) 
+  password String
+  user_id String @unique
+
+  user User @relation(fields: [user_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otp")
 }
 
 model Article {
@@ -129,6 +143,11 @@ model UsersLog {
 model Organization {
   id String  @id @default(cuid()) 
   name String @db.VarChar(255)
+  industry String @db.VarChar(255) @unique
+  revenue String @db.VarChar(255) @unique
+  country String @db.VarChar(255)
+  state String @db.VarChar(255)
+  city String @db.VarChar(255)
   email String? @unique
   role Role?
   usersLog UsersLog?
@@ -138,7 +157,25 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  org_industry Industry @relation(fields: [industry], references: [name])
+  org_revenue Revenue @relation(fields: [revenue], references: [revenue])
+
+
   @@map("organizations")
+}
+
+model Revenue {
+  revenue String @id @db.VarChar(255)
+  organization Organization?
+
+   @@map("revenue")
+}
+
+model Industry {
+  name String @id @db.VarChar(255)
+  organization Organization?
+
+   @@map("industry")
 }
 
 model Role {

@@ -21,6 +21,42 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import SignedInUser from './SignedInUser';
 import NotificationButton from './NotificationButton';
 
+import { Button } from 'flowbite-react';
+import PopOverGuide from './PopOverGuide';
+import Joyride from 'react-joyride';
+
+const steps = [
+  {
+    target: '#step-1',
+    content: 'Welcome!! Please spare a minute to learn about our page',
+    disableBeacon: true,
+  },
+  {
+    target: '#step-2',
+    content: 'You can log in here',
+  },
+  {
+    target: '#step-3',
+    content: "Sign up here, if you're new",
+  },
+  {
+    target: '#step-4',
+    content: 'The packages we offer',
+  },
+  {
+    target: '#step-5',
+    content: 'Click here to find out more about other packages',
+  },
+  {
+    target: '#step-6',
+    content: 'Subscribe to our newsletter here',
+  },
+  {
+    target: '#step-7',
+    content: 'Subscribe to our newsletter here',
+  },
+];
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -58,6 +94,7 @@ export const Header = forwardRef<
 
   return (
     <>
+      <Joyride steps={steps} continuous={true} showSkipButton={true} />
       <motion.div
         ref={ref}
         className={clsx(

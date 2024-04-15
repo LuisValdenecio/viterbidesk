@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className="flex min-h-full h-full bg-white antialiased dark:bg-zinc-900">
+      <body className="flex min-h-full h-full bg-white antialiased dark:bg-zinc-900 relative">
         {children}
       </body>
     </html>

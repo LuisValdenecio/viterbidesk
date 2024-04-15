@@ -126,8 +126,8 @@ export default function Page() {
                   aria-live="polite"
                   aria-atomic="true"
                 >
-                  {state.errors?.agentEmail &&
-                    state.errors.agentEmail.map((error: string) => (
+                  {state.errors?.userEmail &&
+                    state.errors.userEmail.map((error: string) => (
                       <>
                         <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
                         <p className="mt-2 text-sm text-red-500" key={error}>
@@ -157,8 +157,8 @@ export default function Page() {
                   aria-live="polite"
                   aria-atomic="true"
                 >
-                  {state.errors?.agentRole &&
-                    state.errors.agentRole.map((error: string) => (
+                  {state.errors?.userRole &&
+                    state.errors.userRole.map((error: string) => (
                       <>
                         <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
                         <p className="mt-2 text-sm text-red-500" key={error}>

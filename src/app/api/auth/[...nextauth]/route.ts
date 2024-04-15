@@ -2,16 +2,15 @@ import { User } from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@prisma/client';
+import prisma_global_instance from '@/db';
+
 import { compare } from 'bcrypt';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 async function getUser(email: string): Promise<any | undefined> {
   try {
     // By unique identifier
-    const user = await prisma.user.findUnique({
+    const user = await prisma_global_instance.user.findUnique({
       where: {
         email: email,
       },

@@ -21,6 +21,30 @@ export async function fetchCustomers() {
   }
 }
 
+export async function fetchIndustries() {
+  // Add noStore() here prevent the response from being cached.
+  // This is equivalent to in fetch(..., {cache: 'no-store'}).
+  noStore();
+  try {
+    const industries = await prisma_global_instance.industry.findMany();
+    return industries;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer data.');
+  }
+}
+
+export async function fetchRevenues() {
+  noStore();
+  try {
+    const revenues = await prisma_global_instance.revenue.findMany();
+    return revenues;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer data.');
+  }
+}
+
 export async function fetchInvitationToken(token: string) {
   noStore();
 
@@ -40,25 +64,6 @@ export async function fetchInvitationToken(token: string) {
     return !invitationToken?.activated;
   } catch (error) {
     console.log(error);
-  }
-}
-
-export async function fetchOrganizations() {
-  noStore();
-
-  const session = await getServerSession(authOptions);
-
-  try {
-    const organizations = await prisma_global_instance.$queryRaw`
-    SELECT organizations.name, organizations.id, users_to_organizations.role_name
-    FROM organizations
-    INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
-    WHERE users_to_organizations.user_id = ${session?.user?.id};
-  `;
-
-    return organizations;
-  } catch (error) {
-    console.error(error);
   }
 }
 
@@ -192,6 +197,51 @@ export async function fetchDefaultOrganization() {
   return orgOwnedByLoggedInUser?.org_id;
 }
 
+export async function fetchOrganizations(query: string, currentPage?: number) {
+  noStore();
+
+  const session = await getServerSession(authOptions);
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const organizations = await prisma_global_instance.$queryRaw`
+      SELECT organizations.name, organizations.id, users_to_organizations.role_name
+      FROM organizations
+      INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
+      WHERE users_to_organizations.user_id = ${session?.user?.id};
+    `;
+
+    const selectedOrganizations = await prisma_global_instance.$queryRaw`
+      SELECT organizations.name, organizations.id, users_to_organizations.role_name
+      FROM organizations
+      INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
+      WHERE users_to_organizations.user_id = ${session?.user?.id} AND
+      (organizations.name ILIKE ${`%${query}%`} OR organizations.id ILIKE ${`%${query}%`})
+      ORDER BY organizations."createdAt" DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+    const totalOrganizations = await prisma_global_instance.$queryRaw`
+      SELECT count(*)
+      FROM organizations
+      INNER JOIN users_to_organizations ON organizations.id = users_to_organizations.org_id
+      WHERE users_to_organizations.user_id = ${session?.user?.id} AND
+      (organizations.name ILIKE ${`%${query}%`} OR organizations.id ILIKE ${`%${query}%`})
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+    return {
+      organizations: organizations,
+      selectedOrganizations: selectedOrganizations,
+      totalOrganizations: Math.ceil(
+        Number(totalOrganizations[0]?.count) / ITEMS_PER_PAGE,
+      ),
+    };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function fetchAgents(
   activeOrgId: any,
   query: string,
@@ -276,8 +326,6 @@ export async function fetchAgents(
     users_to_organizations.org_id = ${orgOwnedByLoggedInUser.org_id} AND  
     ( users.name ILIKE ${`%${query}%`} OR users.email ILIKE ${`%${query}%`})
     `;
-
-    console.log(limitedUsers);
 
     return {
       users: limitedUsers,

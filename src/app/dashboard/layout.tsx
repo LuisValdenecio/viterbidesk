@@ -7,6 +7,8 @@ import { type Metadata } from 'next';
 import { type Section } from '@/components/SectionProvider';
 import Banner from '@/components/Banner';
 import { OrganizationProvider } from './activeOrganizationProvider';
+import CompletionAnimation from '@/components/CompletionAnimation';
+import { PopoverGuideProvider } from './popoverGuideProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -33,9 +35,11 @@ export default async function Layout({
     <Providers>
       <div className="w-full">
         <OrganizationProvider>
-          <DashboardLayout allSections={allSections}>
-            {children}
-          </DashboardLayout>
+          <PopoverGuideProvider>
+            <DashboardLayout allSections={allSections}>
+              {children}
+            </DashboardLayout>
+          </PopoverGuideProvider>
         </OrganizationProvider>
       </div>
     </Providers>

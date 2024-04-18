@@ -23,6 +23,18 @@ const AgentFormSchema = z.object({
   }),
 });
 
+const NewTopicFormSchema = z.object({
+  getOrganizationId: z.string().min(25, {
+    message: 'Please provide the id for the organization',
+  }),
+  topicDescription: z.string().min(1, {
+    message: 'Please type in a topic description',
+  }),
+  topicName: z.string().min(1, {
+    message: 'Please type in the topic name',
+  }),
+});
+
 const NewAgentFormSchema = z.object({
   getOrganizationId: z.string().min(25, {
     message: 'Please provide the id for the organization',
@@ -49,6 +61,7 @@ const OrganizationFormSchema = z.object({
 });
 
 const CreateNewAgent = NewAgentFormSchema.omit({});
+const createNewTopic = NewTopicFormSchema.omit({});
 const UpdateAgent = AgentFormSchema.omit({});
 const UpdateUserRole = UserRoleFormSchema.omit({});
 
@@ -62,6 +75,14 @@ export type StateAgent = {
     agentEmail?: string[];
     agentImgUrl?: string[];
     agentRole?: string[];
+  };
+  message?: string | null;
+};
+
+export type StateTopic = {
+  errors?: {
+    name: string[];
+    about: string[];
   };
   message?: string | null;
 };
@@ -348,6 +369,75 @@ export async function scheduleEmailInvitation(emails: any, activeOrgId: any) {
     });
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function createTopic(prevState: StateTopic, formData: FormData) {
+  const session = await getServerSession(authOptions);
+  const orgOwnedByLoggedInUser =
+    await prisma_global_instance.userToOrganization.findFirst({
+      where: {
+        user_id: session?.user?.id,
+        role_name: 'owner',
+      },
+      select: {
+        org_id: true,
+      },
+      orderBy: {
+        createdAt: 'desc', // Sort by createdAt column in descending order
+      },
+    });
+
+  const validatedFields = createNewTopic.safeParse({
+    topicName: formData.get('name'),
+    topicDescription: formData.get('about'),
+    getOrganizationId: formData.get('org_id') || orgOwnedByLoggedInUser?.org_id,
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { topicName, getOrganizationId, topicDescription } =
+    validatedFields.data;
+
+  try {
+    const isTopicNameRepeated = await prisma_global_instance.topic.findUnique({
+      where: {
+        name: topicName,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    if (isTopicNameRepeated?.name) {
+      return {
+        message: 'Topic name already exists',
+      };
+    }
+
+    const newTopic = await prisma_global_instance.topic.create({
+      data: {
+        name: topicName,
+        about: topicDescription,
+        org_id: getOrganizationId,
+      },
+    });
+
+    return {
+      message: 'All fields are valid',
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      message: 'Database Error',
+    };
   }
 }
 

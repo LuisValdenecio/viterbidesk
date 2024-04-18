@@ -236,7 +236,7 @@ export const navigation: Array<NavGroup> = [
     title: 'Pages',
     links: [
       { title: 'Analytics', href: '/dashboard/analytics' },
-      { title: 'AI Marketplace', href: '/dashboard/marketplace' },
+      //{ title: 'AI Marketplace', href: '/dashboard/marketplace' },
       { title: 'API', href: '/dashboard/api' },
       { title: 'Dashboard', href: '/dashboard' },
       { title: 'History', href: '/dashboard/history' },
@@ -248,8 +248,8 @@ export const navigation: Array<NavGroup> = [
   {
     title: 'File System',
     links: [
-      { title: 'Files', href: '/dashboard/analytics' },
-      { title: 'Uploads', href: '/dashboard/marketplace' },
+      { title: 'Base knowledge', href: '/dashboard/knowledge' },
+      { title: 'Files', href: '/dashboard/files' },
       { title: 'Reports', href: '/dashboard/api' },
     ],
   },

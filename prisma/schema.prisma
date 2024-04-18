@@ -43,6 +43,32 @@ model OTP {
   @@map("otp")
 }
 
+model Topic {
+  id  String  @id @default(cuid()) 
+  name String @db.VarChar(255) @unique
+  about String @db.VarChar(500)
+  channel_name String? @db.VarChar(255) @unique
+  org_id String @unique 
+  
+  organization Organization @relation(fields: [org_id], references: [id])
+  channel Channel? @relation(fields: [channel_name], references: [name])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("topics")  
+}
+
+model Channel {
+  name String @id @db.VarChar(255)
+  topic Topic?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("channels")   
+}
+
 model Article {
   id  String  @id @default(cuid()) 
   title String? @db.VarChar(255)
@@ -150,6 +176,7 @@ model Organization {
   city String @db.VarChar(255)
   email String? @unique
   role Role?
+  topic Topic?
   usersLog UsersLog?
   signinLog SignInLog?
   articlesLog ArticlesLog?

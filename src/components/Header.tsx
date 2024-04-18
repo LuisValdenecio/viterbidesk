@@ -94,7 +94,9 @@ export const Header = forwardRef<
 
   return (
     <>
-      <Joyride steps={steps} continuous={true} showSkipButton={true} />
+      {
+        //<Joyride steps={steps} continuous={true} showSkipButton={true} />
+      }
       <motion.div
         ref={ref}
         className={clsx(

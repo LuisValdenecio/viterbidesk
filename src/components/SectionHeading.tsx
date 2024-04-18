@@ -39,7 +39,7 @@ const SectionHeading: React.FC<{
       <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
         <div className="md:flex md:items-center md:justify-between">
           {mainTitle && (
-            <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
               {mainTitle.title}
             </h1>
           )}

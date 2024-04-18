@@ -20,10 +20,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  overflow: scroll;
-}
-
 .center-window {
   position: absolute;
   top: 50%;
@@ -49,4 +45,9 @@ html {
 .invite-modal {
   width: 40rem;
   height: 25rem;
+}
+
+.invite-modal-plus {
+  width: 40rem;
+  height: 35rem;
 }

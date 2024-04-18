@@ -21,6 +21,21 @@ export async function fetchCustomers() {
   }
 }
 
+export async function fetchTopics(org_id: string) {
+  noStore();
+  try {
+    const topics = await prisma_global_instance.topic.findMany({
+      where: {
+        org_id: org_id,
+      },
+    });
+    return topics;
+  } catch (error) {
+    console.error('Database error', error);
+    throw new Error('Failed to fetch the topics');
+  }
+}
+
 export async function fetchIndustries() {
   // Add noStore() here prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -28,6 +43,24 @@ export async function fetchIndustries() {
   try {
     const industries = await prisma_global_instance.industry.findMany();
     return industries;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer data.');
+  }
+}
+
+export async function fetchOrganizationName(org_id: string) {
+  try {
+    const organization_name =
+      await prisma_global_instance.organization.findFirst({
+        where: {
+          id: org_id,
+        },
+        select: {
+          name: true,
+        },
+      });
+    return organization_name?.name;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch customer data.');
